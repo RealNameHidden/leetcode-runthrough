@@ -13,6 +13,9 @@
  * - Space: O(capacity)
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 class LRUCache {
     // Node in doubly-linked list
     class Node {
