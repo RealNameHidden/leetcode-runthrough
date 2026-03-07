@@ -9,12 +9,19 @@
     "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@heroui/react": "^2.8.9",
+    "@heroui/styles": "^3.0.0-beta.8",
+    "@tailwindcss/vite": "^4.2.1",
+    "framer-motion": "^12.35.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.27",
     "gh-pages": "^6.3.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
     "vite": "^5.0.8"
   }
 }

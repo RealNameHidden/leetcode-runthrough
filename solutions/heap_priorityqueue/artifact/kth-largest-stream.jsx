@@ -1,546 +1,248 @@
-import { useState, useEffect, useRef } from "react";
+export const difficulty = 'Easy'
+import { useState, useEffect } from "react";
+import { Tabs, Tab } from "@heroui/react";
+import { Card, CardBody } from "@heroui/react";
+import { Button } from "@heroui/react";
+import { Chip } from "@heroui/react";
+import { Input } from "@heroui/react";
 
-const COLORS = {
-  bg: "#0d1117",
-  card: "#161b22",
-  border: "#30363d",
-  accent: "#f78166",
-  accentSoft: "#ff7b7220",
-  green: "#3fb950",
-  greenSoft: "#3fb95020",
-  blue: "#79c0ff",
-  blueSoft: "#79c0ff18",
-  muted: "#8b949e",
-  text: "#e6edf3",
-  heap: "#21262d",
-};
+const ACCENT="#f78166",GREEN="#3fb950",BLUE="#79c0ff";
 
-// Min-heap implementation
-class MinHeap {
-  constructor() { this.data = []; }
-  push(val) {
-    this.data.push(val);
-    this._bubbleUp(this.data.length - 1);
-  }
-  pop() {
-    const top = this.data[0];
-    const last = this.data.pop();
-    if (this.data.length > 0) { this.data[0] = last; this._sinkDown(0); }
-    return top;
-  }
-  peek() { return this.data[0]; }
-  size() { return this.data.length; }
-  _bubbleUp(i) {
-    while (i > 0) {
-      const p = Math.floor((i - 1) / 2);
-      if (this.data[p] <= this.data[i]) break;
-      [this.data[p], this.data[i]] = [this.data[i], this.data[p]];
-      i = p;
-    }
-  }
-  _sinkDown(i) {
-    const n = this.data.length;
-    while (true) {
-      let smallest = i, l = 2*i+1, r = 2*i+2;
-      if (l < n && this.data[l] < this.data[smallest]) smallest = l;
-      if (r < n && this.data[r] < this.data[smallest]) smallest = r;
-      if (smallest === i) break;
-      [this.data[i], this.data[smallest]] = [this.data[smallest], this.data[i]];
-      i = smallest;
-    }
-  }
+class MinHeap{
+  constructor(){this.data=[];}
+  push(v){this.data.push(v);this._up(this.data.length-1);}
+  pop(){const top=this.data[0];const last=this.data.pop();if(this.data.length>0){this.data[0]=last;this._down(0);}return top;}
+  peek(){return this.data[0];}
+  size(){return this.data.length;}
+  _up(i){while(i>0){const p=Math.floor((i-1)/2);if(this.data[p]<=this.data[i])break;[this.data[p],this.data[i]]=[this.data[i],this.data[p]];i=p;}}
+  _down(i){const n=this.data.length;while(true){let s=i,l=2*i+1,r=2*i+2;if(l<n&&this.data[l]<this.data[s])s=l;if(r<n&&this.data[r]<this.data[s])s=r;if(s===i)break;[this.data[i],this.data[s]]=[this.data[s],this.data[i]];i=s;}}
 }
 
-function simulate(k, nums, adds) {
-  const h = new MinHeap();
-  const steps = [];
-
-  // Init
-  for (const n of nums) h.push(n);
-  while (h.size() > k) h.pop();
-  steps.push({ phase: "init", heap: [...h.data], result: null, val: null, desc: `Initialize with [${nums.join(", ")}], trim to k=${k} largest` });
-
-  for (const val of adds) {
+function simulate(k,nums,adds){
+  const h=new MinHeap(),steps=[];
+  for(const n of nums)h.push(n);
+  while(h.size()>k)h.pop();
+  steps.push({phase:"init",heap:[...h.data],result:h.peek()??null,val:null,desc:`Init with [${nums.join(",")}], trim to k=${k} largest → heap=[${h.data.join(",")}]`});
+  for(const val of adds){
     h.push(val);
-    if (h.size() > k) h.pop();
-    steps.push({ phase: "add", heap: [...h.data], result: h.peek(), val, desc: `add(${val}) → kth largest = ${h.peek()}` });
+    if(h.size()>k)h.pop();
+    steps.push({phase:"add",heap:[...h.data],result:h.peek(),val,desc:`add(${val}) → heap min = ${h.peek()} → kth largest = ${h.peek()}`});
   }
   return steps;
 }
 
-// Draw heap as tree
-function HeapTree({ heap, highlight }) {
-  if (!heap || heap.length === 0) return <div style={{ color: COLORS.muted, fontSize: 13, padding: "12px 0" }}>empty heap</div>;
-
-  const levels = [];
-  let i = 0, level = 0;
-  while (i < heap.length) {
-    const count = Math.min(Math.pow(2, level), heap.length - i);
-    levels.push(heap.slice(i, i + count));
-    i += count;
-    level++;
+function HeapTree({heap,highlight}){
+  if(!heap||heap.length===0)return<p className="text-center text-default-400 py-4 text-sm">empty heap</p>;
+  const levels=[];let i=0,level=0;
+  while(i<heap.length){
+    const count=Math.min(Math.pow(2,level),heap.length-i);
+    levels.push(heap.slice(i,i+count));
+    i+=count;level++;
   }
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 0" }}>
-      {levels.map((row, li) => (
-        <div key={li} style={{ display: "flex", gap: Math.max(8, 48 - li * 14), justifyContent: "center" }}>
-          {row.map((val, vi) => {
-            const idx = Math.pow(2, li) - 1 + vi;
-            const isRoot = idx === 0;
-            const isHighlight = val === highlight && li === levels.length - 1;
-            return (
-              <div key={vi} style={{
-                width: 36, height: 36, borderRadius: "50%",
-                background: isRoot ? COLORS.accent : isHighlight ? COLORS.accentSoft : COLORS.heap,
-                border: `2px solid ${isRoot ? COLORS.accent : COLORS.border}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 13, fontWeight: isRoot ? 700 : 400,
-                color: isRoot ? "#fff" : COLORS.text,
-                fontFamily: "monospace",
-                transition: "all 0.3s ease",
-                boxShadow: isRoot ? `0 0 12px ${COLORS.accent}55` : "none"
-              }}>
-                {val}
+  return(
+    <div className="flex flex-col items-center gap-3 py-2">
+      {levels.map((lvl,li)=>(
+        <div key={li} className="flex gap-3 justify-center items-center">
+          {lvl.map((v,ni)=>{
+            const idx=Math.pow(2,li)-1+ni;
+            const isHL=v===highlight;
+            const isRoot=li===0;
+            return(
+              <div key={ni} className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold font-mono transition-all"
+                  style={{background:isRoot?`${ACCENT}28`:isHL?`${BLUE}28`:"var(--viz-surface)",border:`2px solid ${isRoot?ACCENT:isHL?BLUE:"var(--viz-border)"}`,color:isRoot?ACCENT:isHL?BLUE:"var(--viz-text)",boxShadow:isRoot?`0 0 12px ${ACCENT}55`:isHL?`0 0 8px ${BLUE}44`:"none"}}>
+                  {v}
+                </div>
+                {isRoot&&<span className="text-[9px] mt-1" style={{color:ACCENT}}>MIN</span>}
               </div>
             );
           })}
         </div>
       ))}
-      <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>
-        ↑ root = kth largest
-      </div>
     </div>
   );
 }
 
-const CODE = `class KthLargest:
-    def __init__(self, k: int, nums: list[int]):
-        self.k = k
-        self.heap = nums
-        heapq.heapify(self.heap)
-        # Trim to only keep top-k largest
-        while len(self.heap) > k:
-            heapq.heappop(self.heap)
+const DEFAULT_NUMS="4,5,8,2";
+const DEFAULT_ADDS="3,5,10,9,4";
 
-    def add(self, val: int) -> int:
-        heapq.heappush(self.heap, val)
-        if len(self.heap) > self.k:
-            heapq.heappop(self.heap)
-        # Min-heap root = kth largest
-        return self.heap[0]`;
+export default function App(){
+  const [tab,setTab]=useState("Intuition");
+  const [k,setK]=useState(3);
+  const [numsStr,setNumsStr]=useState(DEFAULT_NUMS);
+  const [addsStr,setAddsStr]=useState(DEFAULT_ADDS);
+  const [steps,setSteps]=useState([]);
+  const [si,setSi]=useState(0);
 
-const SECTIONS = ["Problem", "Intuition", "Visualizer", "Code"];
+  useEffect(()=>{
+    const nums=numsStr.split(",").map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+    const adds=addsStr.split(",").map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+    if(nums.length>0){setSteps(simulate(k,nums,adds));setSi(0);}
+  },[k,numsStr,addsStr]);
 
-export default function App() {
-  const [tab, setTab] = useState("Problem");
-  const [k, setK] = useState(3);
-  const [numsStr, setNumsStr] = useState("1,2,3,3");
-  const [addsStr, setAddsStr] = useState("3,5,6,7,8");
-  const [stepIdx, setStepIdx] = useState(0);
-  const [steps, setSteps] = useState([]);
-  const [addInput, setAddInput] = useState("");
-  const [liveHeap, setLiveHeap] = useState(null);
-  const [liveK, setLiveK] = useState(3);
-  const [liveResult, setLiveResult] = useState(null);
-  const [liveStream, setLiveStream] = useState([]);
-  const [feedback, setFeedback] = useState("");
+  const step=steps[si]||null;
 
-  useEffect(() => {
-    try {
-      const nums = numsStr.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-      const adds = addsStr.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-      const s = simulate(k, nums, adds);
-      setSteps(s);
-      setStepIdx(0);
-    } catch { }
-  }, [k, numsStr, addsStr]);
-
-  // Live playground
-  const initLive = () => {
-    const h = new MinHeap();
-    const nums = numsStr.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-    for (const n of nums) h.push(n);
-    while (h.size() > liveK) h.pop();
-    setLiveHeap(h);
-    setLiveStream(nums);
-    setLiveResult(null);
-    setFeedback("Heap initialized! Now use add() below.");
-  };
-
-  const liveAdd = () => {
-    const val = parseInt(addInput);
-    if (isNaN(val)) return;
-    if (!liveHeap) { setFeedback("Initialize first!"); return; }
-    liveHeap.push(val);
-    if (liveHeap.size() > liveK) liveHeap.pop();
-    setLiveHeap(Object.assign(Object.create(Object.getPrototypeOf(liveHeap)), liveHeap));
-    setLiveResult(liveHeap.peek());
-    setLiveStream(prev => [...prev, val]);
-    setFeedback(`add(${val}) → kth largest = ${liveHeap.peek()}`);
-    setAddInput("");
-  };
-
-  const step = steps[stepIdx];
-
-  return (
-    <div style={{ minHeight: "100vh", background: COLORS.bg, color: COLORS.text, fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>
-      {/* Header */}
-      <div style={{ borderBottom: `1px solid ${COLORS.border}`, padding: "16px 24px", display: "flex", alignItems: "center", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.accent }} />
-          <span style={{ fontFamily: "Georgia, serif", fontSize: 18, fontWeight: 700, color: COLORS.text, letterSpacing: "-0.5px" }}>
-            Kth Largest in a Stream
-          </span>
-        </div>
-        <div style={{ marginLeft: 8, padding: "2px 10px", borderRadius: 20, background: COLORS.greenSoft, border: `1px solid ${COLORS.green}`, fontSize: 11, color: COLORS.green }}>
-          Easy · Heap
-        </div>
+  return(
+    <div className="min-h-full bg-background text-foreground">
+      <div className="border-b border-divider px-6 py-4 flex items-center gap-3 bg-content1">
+        <span className="text-xl">📡</span>
+        <h1 className="font-semibold text-base">Kth Largest Element in a Stream</h1>
+        <Chip size="sm" color="warning" variant="flat">Easy</Chip>
+        <Chip size="sm" color="danger" variant="flat">Min-Heap</Chip>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: `1px solid ${COLORS.border}`, padding: "0 24px" }}>
-        {SECTIONS.map(s => (
-          <button key={s} onClick={() => setTab(s)} style={{
-            background: "none", border: "none", cursor: "pointer",
-            padding: "12px 16px", fontSize: 13, color: tab === s ? COLORS.accent : COLORS.muted,
-            borderBottom: tab === s ? `2px solid ${COLORS.accent}` : "2px solid transparent",
-            transition: "all 0.2s", fontFamily: "inherit"
-          }}>{s}</button>
-        ))}
-      </div>
+      <div className="px-4 pt-3">
+        <Tabs selectedKey={tab} onSelectionChange={k=>setTab(String(k))} variant="underlined" color="primary" size="sm">
 
-      <div style={{ maxWidth: 820, margin: "0 auto", padding: "28px 24px" }}>
-
-        {/* PROBLEM TAB */}
-        {tab === "Problem" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Card title="Problem Statement">
-              <p style={{ color: COLORS.muted, lineHeight: 1.7, margin: 0 }}>
-                Design a class to find the <span style={{ color: COLORS.blue }}>kth largest integer</span> in a stream of values, including duplicates.
-              </p>
-              <p style={{ color: COLORS.muted, lineHeight: 1.7, margin: "12px 0 0" }}>
-                Implement two methods:
-              </p>
-              <ul style={{ color: COLORS.muted, lineHeight: 1.9, paddingLeft: 20 }}>
-                <li><code style={{ color: COLORS.accent }}>__init__(k, nums)</code> — Initialize with k and a starting stream</li>
-                <li><code style={{ color: COLORS.accent }}>add(val)</code> — Add val, return kth largest</li>
-              </ul>
-            </Card>
-
-            <Card title="Example">
-              <pre style={{ background: COLORS.heap, borderRadius: 8, padding: 16, fontSize: 12, overflowX: "auto", margin: 0, lineHeight: 1.8 }}>
-                <span style={{ color: COLORS.muted }}># k=3, nums=[1,2,3,3]</span>{"\n"}
-                <span style={{ color: COLORS.muted }}># Stream so far: [1,2,3,3]</span>{"\n\n"}
-                <span style={{ color: COLORS.blue }}>add</span>(<span style={{ color: COLORS.accent }}>3</span>)  <span style={{ color: COLORS.muted }}># [1,2,3,3,3] → 3rd largest = <span style={{ color: COLORS.green }}>3</span></span>{"\n"}
-                <span style={{ color: COLORS.blue }}>add</span>(<span style={{ color: COLORS.accent }}>5</span>)  <span style={{ color: COLORS.muted }}># [1,2,3,3,3,5] → 3rd largest = <span style={{ color: COLORS.green }}>3</span></span>{"\n"}
-                <span style={{ color: COLORS.blue }}>add</span>(<span style={{ color: COLORS.accent }}>6</span>)  <span style={{ color: COLORS.muted }}># [...,6] → 3rd largest = <span style={{ color: COLORS.green }}>3</span></span>{"\n"}
-                <span style={{ color: COLORS.blue }}>add</span>(<span style={{ color: COLORS.accent }}>7</span>)  <span style={{ color: COLORS.muted }}># [...,7] → 3rd largest = <span style={{ color: COLORS.green }}>5</span></span>{"\n"}
-                <span style={{ color: COLORS.blue }}>add</span>(<span style={{ color: COLORS.accent }}>8</span>)  <span style={{ color: COLORS.muted }}># [...,8] → 3rd largest = <span style={{ color: COLORS.green }}>6</span></span>
-              </pre>
-            </Card>
-
-            <Card title="Constraints">
-              <ul style={{ color: COLORS.muted, lineHeight: 2, paddingLeft: 20, margin: 0 }}>
-                <li><code style={{ color: COLORS.text }}>1 ≤ k ≤ 1000</code></li>
-                <li><code style={{ color: COLORS.text }}>0 ≤ nums.length ≤ 1000</code></li>
-                <li><code style={{ color: COLORS.text }}>-1000 ≤ nums[i], val ≤ 1000</code></li>
-                <li>At least k integers will always exist when add() is called</li>
-              </ul>
-            </Card>
-          </div>
-        )}
-
-        {/* INTUITION TAB */}
-        {tab === "Intuition" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Card title="🤔 Brute Force First">
-              <p style={{ color: COLORS.muted, lineHeight: 1.7 }}>
-                Naive approach: store every number. On each <code style={{ color: COLORS.accent }}>add()</code>, sort all numbers and return the kth from the end.
-              </p>
-              <div style={{ background: COLORS.heap, borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: COLORS.muted, fontSize: 13 }}>Time per add()</span>
-                <span style={{ color: COLORS.accent, fontWeight: 700 }}>O(n log n) ❌</span>
-              </div>
-            </Card>
-
-            <Card title="💡 Key Insight">
-              <p style={{ color: COLORS.muted, lineHeight: 1.7 }}>
-                We don't need <em>all</em> numbers — we only need the <span style={{ color: COLORS.blue }}>top k largest</span>.
-              </p>
-              <p style={{ color: COLORS.muted, lineHeight: 1.7 }}>
-                The <strong style={{ color: COLORS.text }}>kth largest</strong> is just the <strong style={{ color: COLORS.accent }}>smallest among the top-k</strong>.
-              </p>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-                {[8,7,6,5,4,3,2,1].map((n, i) => (
-                  <div key={n} style={{
-                    padding: "6px 12px", borderRadius: 6, fontSize: 13,
-                    background: i < 3 ? COLORS.accentSoft : COLORS.heap,
-                    border: `1px solid ${i < 3 ? COLORS.accent : COLORS.border}`,
-                    color: i < 3 ? COLORS.accent : COLORS.muted,
-                    position: "relative"
-                  }}>
-                    {n}
-                    {i === 2 && <div style={{ position: "absolute", top: -18, left: "50%", transform: "translateX(-50%)", fontSize: 10, color: COLORS.accent, whiteSpace: "nowrap" }}>3rd largest ↓</div>}
+          <Tab key="Intuition" title="Intuition">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">🧠 The Key Insight</p>
+                <p className="text-sm text-default-600 leading-relaxed mb-4">
+                  Keep a <strong className="text-foreground">min-heap of size k</strong>. The kth largest is always the <span style={{color:ACCENT}} className="font-semibold">minimum element</span> of that heap — the smallest of the top-k.
+                </p>
+                <div className="flex gap-3 flex-wrap">
+                  <div className="flex-1 min-w-40 rounded-lg p-4" style={{background:`${ACCENT}0d`,border:`1px solid ${ACCENT}33`}}>
+                    <p className="text-xs font-bold mb-2" style={{color:ACCENT}}>Min-Heap of size k</p>
+                    <p className="text-xs text-default-500 leading-relaxed">Heap root = kth largest. When a new number arrives, push it in. If size exceeds k, pop the min (too small to be top-k).</p>
                   </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card title="🏗️ The Min-Heap Solution">
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div className="flex-1 min-w-40 rounded-lg p-4" style={{background:`${GREEN}0d`,border:`1px solid ${GREEN}33`}}>
+                    <p className="text-xs font-bold mb-2" style={{color:GREEN}}>Why not sort every time?</p>
+                    <p className="text-xs text-default-500 leading-relaxed">Sorting = O(n log n) per add. Heap = O(log k) per add. Heap grows with stream while staying fast.</p>
+                  </div>
+                </div>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Algorithm</p>
                 {[
-                  { n: "1", title: "Maintain a Min-Heap of exactly k elements", desc: "The heap stores the top-k largest numbers seen so far." },
-                  { n: "2", title: "When adding a new value", desc: "Push it into the heap. If heap size exceeds k, pop the minimum (discard small values)." },
-                  { n: "3", title: "Answer is always heap[0]", desc: "The root of a min-heap is the smallest element in the heap = the kth largest overall." },
-                ].map(({ n, title, desc }) => (
-                  <div key={n} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: COLORS.accentSoft, border: `1px solid ${COLORS.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: COLORS.accent, flexShrink: 0, fontWeight: 700 }}>{n}</div>
+                  {n:"1",t:"Build heap from initial nums",     d:"Push all, then pop until size = k."},
+                  {n:"2",t:"add(val): push val into heap",     d:"O(log k) insertion."},
+                  {n:"3",t:"If heap.size() > k, pop minimum",  d:"Discard values smaller than the kth largest."},
+                  {n:"4",t:"Return heap.peek()",               d:"The root is always the kth largest."},
+                ].map(({n,t,d})=>(
+                  <div key={n} className="flex gap-3 mb-3 items-start">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
+                      style={{background:`${ACCENT}18`,border:`1px solid ${ACCENT}55`,color:ACCENT}}>{n}</div>
                     <div>
-                      <div style={{ color: COLORS.text, fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{title}</div>
-                      <div style={{ color: COLORS.muted, fontSize: 12, lineHeight: 1.6 }}>{desc}</div>
+                      <p className="text-sm font-semibold text-foreground mb-0.5">{t}</p>
+                      <p className="text-xs text-default-400">{d}</p>
                     </div>
                   </div>
                 ))}
-              </div>
-            </Card>
-
-            <Card title="⚡ Complexity">
-              <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ flex: 1, background: COLORS.heap, borderRadius: 8, padding: 12, textAlign: "center" }}>
-                  <div style={{ color: COLORS.muted, fontSize: 11, marginBottom: 6 }}>TIME (per add)</div>
-                  <div style={{ color: COLORS.green, fontWeight: 700, fontSize: 16 }}>O(log k)</div>
-                </div>
-                <div style={{ flex: 1, background: COLORS.heap, borderRadius: 8, padding: 12, textAlign: "center" }}>
-                  <div style={{ color: COLORS.muted, fontSize: 11, marginBottom: 6 }}>SPACE</div>
-                  <div style={{ color: COLORS.green, fontWeight: 700, fontSize: 16 }}>O(k)</div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* VISUALIZER TAB */}
-        {tab === "Visualizer" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Card title="Configure">
-              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                  <span style={{ fontSize: 12, color: COLORS.muted }}>k (rank)</span>
-                  <input type="number" value={k} min={1} max={10} onChange={e => setK(parseInt(e.target.value) || 1)}
-                    style={{ background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 6, padding: "8px 12px", fontSize: 14, fontFamily: "inherit", width: "100%" }} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6, flex: 2 }}>
-                  <span style={{ fontSize: 12, color: COLORS.muted }}>Initial nums (comma-separated)</span>
-                  <input value={numsStr} onChange={e => setNumsStr(e.target.value)}
-                    style={{ background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 6, padding: "8px 12px", fontSize: 14, fontFamily: "inherit", width: "100%" }} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6, flex: 2 }}>
-                  <span style={{ fontSize: 12, color: COLORS.muted }}>add() calls (comma-separated)</span>
-                  <input value={addsStr} onChange={e => setAddsStr(e.target.value)}
-                    style={{ background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 6, padding: "8px 12px", fontSize: 14, fontFamily: "inherit", width: "100%" }} />
-                </label>
-              </div>
-            </Card>
-
-            {steps.length > 0 && step && (
-              <Card title="Step-by-Step">
-                {/* Progress */}
-                <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                  {steps.map((s, i) => (
-                    <button key={i} onClick={() => setStepIdx(i)} style={{
-                      padding: "4px 10px", borderRadius: 4, fontSize: 12,
-                      background: i === stepIdx ? COLORS.accent : COLORS.heap,
-                      border: `1px solid ${i === stepIdx ? COLORS.accent : COLORS.border}`,
-                      color: i === stepIdx ? "#fff" : COLORS.muted, cursor: "pointer", fontFamily: "inherit"
-                    }}>
-                      {i === 0 ? "init" : `add(${s.val})`}
-                    </button>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">⚡ Complexity</p>
+                <div className="flex gap-3">
+                  {[{l:"add() TIME",v:"O(log k)"},{l:"Constructor",v:"O(n log k)"},{l:"SPACE",v:"O(k)"}].map(({l,v})=>(
+                    <div key={l} className="flex-1 rounded-lg p-3 text-center" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                      <p className="text-xs text-default-400 mb-1">{l}</p>
+                      <p className="font-bold text-sm" style={{color:ACCENT}}>{v}</p>
+                    </div>
                   ))}
                 </div>
+              </CardBody></Card>
+            </div>
+          </Tab>
 
-                <div style={{ background: COLORS.heap, borderRadius: 8, padding: 14, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, color: COLORS.blue, marginBottom: 4 }}>
-                    Step {stepIdx + 1} of {steps.length}
-                  </div>
-                  <div style={{ fontSize: 14, color: COLORS.text }}>{step.desc}</div>
+          <Tab key="Visualizer" title="Visualizer">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Configure</p>
+                <div className="flex gap-3 flex-wrap">
+                  <Input label="k" type="number" value={String(k)} onValueChange={v=>setK(Math.max(1,parseInt(v)||1))}
+                    variant="bordered" size="sm" className="w-20"/>
+                  <Input label="Initial nums" value={numsStr} onValueChange={setNumsStr}
+                    variant="bordered" size="sm" className="flex-1"/>
+                  <Input label="Stream adds" value={addsStr} onValueChange={setAddsStr}
+                    variant="bordered" size="sm" className="flex-1"/>
                 </div>
+              </CardBody></Card>
 
-                <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                  <div style={{ flex: 1, minWidth: 160, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>MIN-HEAP (top-{k})</div>
-                    <HeapTree heap={step.heap} />
-                    <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 8 }}>
-                      raw: [{step.heap.join(", ")}]
-                    </div>
+              {steps.length>0&&step&&(
+                <Card><CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Min-Heap Simulation</p>
+                  <div className="flex gap-1.5 mb-4 flex-wrap">
+                    {steps.map((s,i)=>(
+                      <button key={i} onClick={()=>setSi(i)}
+                        className="px-2 py-0.5 rounded text-[11px] cursor-pointer"
+                        style={{background:i===si?`${ACCENT}20`:"var(--viz-surface)",border:`1px solid ${i===si?ACCENT:"var(--viz-border)"}`,color:i===si?ACCENT:"var(--viz-muted)"}}>
+                        {i===0?"init":`add(${s.val})`}
+                      </button>
+                    ))}
                   </div>
-                  {step.result !== null && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 120 }}>
-                      <div style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>RESULT</div>
-                      <div style={{ width: 64, height: 64, borderRadius: "50%", background: COLORS.greenSoft, border: `2px solid ${COLORS.green}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700, color: COLORS.green, boxShadow: `0 0 20px ${COLORS.green}33` }}>
-                        {step.result}
-                      </div>
-                      <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 8 }}>kth largest</div>
+                  <div className="rounded-lg px-4 py-3 mb-4" style={{background:`${ACCENT}12`,border:`1px solid ${ACCENT}40`}}>
+                    <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>
+                    <p className="text-sm text-foreground">{step.desc}</p>
+                  </div>
+                  <div className="rounded-xl p-4 mb-4" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                    <p className="text-[10px] font-semibold text-default-400 uppercase tracking-wider mb-2 text-center">
+                      Min-Heap (size={step.heap.length}, k={k}) — root = kth largest
+                    </p>
+                    <HeapTree heap={step.heap} highlight={step.val}/>
+                  </div>
+                  {step.result!==undefined&&step.result!==null&&(
+                    <div className="rounded-lg px-4 py-3 mb-4 text-center" style={{background:`${GREEN}12`,border:`1px solid ${GREEN}44`}}>
+                      <p className="text-xs text-default-400 mb-1">Kth Largest</p>
+                      <p className="text-xl font-bold" style={{color:GREEN}}>{step.result}</p>
                     </div>
                   )}
-                </div>
-
-                <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-                  <button onClick={() => setStepIdx(i => Math.max(0, i - 1))}
-                    disabled={stepIdx === 0}
-                    style={{ flex: 1, padding: "8px", background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: stepIdx === 0 ? COLORS.muted : COLORS.text, borderRadius: 6, cursor: stepIdx === 0 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 13 }}>
-                    ← Prev
-                  </button>
-                  <button onClick={() => setStepIdx(i => Math.min(steps.length - 1, i + 1))}
-                    disabled={stepIdx === steps.length - 1}
-                    style={{ flex: 1, padding: "8px", background: stepIdx === steps.length - 1 ? COLORS.heap : COLORS.accent, border: `1px solid ${stepIdx === steps.length - 1 ? COLORS.border : COLORS.accent}`, color: stepIdx === steps.length - 1 ? COLORS.muted : "#fff", borderRadius: 6, cursor: stepIdx === steps.length - 1 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 13 }}>
-                    Next →
-                  </button>
-                </div>
-              </Card>
-            )}
-
-            {/* Live Playground */}
-            <Card title="🧪 Live Playground">
-              <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: 12, color: COLORS.muted }}>k</span>
-                  <input type="number" value={liveK} min={1} onChange={e => setLiveK(parseInt(e.target.value) || 1)}
-                    style={{ width: 64, background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 6, padding: "8px 12px", fontSize: 14, fontFamily: "inherit" }} />
-                </label>
-                <button onClick={initLive} style={{ padding: "8px 16px", background: COLORS.blueSoft, border: `1px solid ${COLORS.blue}`, color: COLORS.blue, borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
-                  Initialize
-                </button>
-              </div>
-
-              {liveHeap && (
-                <>
-                  <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "center" }}>
-                    <input
-                      value={addInput}
-                      onChange={e => setAddInput(e.target.value)}
-                      onKeyDown={e => e.key === "Enter" && liveAdd()}
-                      placeholder="Enter value..."
-                      style={{ flex: 1, background: COLORS.heap, border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 6, padding: "8px 12px", fontSize: 14, fontFamily: "inherit" }}
-                    />
-                    <button onClick={liveAdd} style={{ padding: "8px 16px", background: COLORS.accentSoft, border: `1px solid ${COLORS.accent}`, color: COLORS.accent, borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 13, whiteSpace: "nowrap" }}>
-                      add()
-                    </button>
+                  <div className="flex gap-2">
+                    <Button fullWidth variant="bordered" size="sm" isDisabled={si===0}
+                      onPress={()=>setSi(i=>Math.max(0,i-1))}>← Prev</Button>
+                    <Button fullWidth color="primary" size="sm" isDisabled={si===steps.length-1}
+                      onPress={()=>setSi(i=>Math.min(steps.length-1,i+1))}>Next →</Button>
                   </div>
-
-                  {feedback && (
-                    <div style={{ background: COLORS.greenSoft, border: `1px solid ${COLORS.green}`, borderRadius: 6, padding: "8px 12px", fontSize: 13, color: COLORS.green, marginBottom: 12 }}>
-                      {feedback}
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>HEAP</div>
-                      <HeapTree heap={liveHeap.data} />
-                    </div>
-                    {liveResult !== null && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                        <div style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>kth LARGEST</div>
-                        <div style={{ width: 56, height: 56, borderRadius: "50%", background: COLORS.greenSoft, border: `2px solid ${COLORS.green}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, color: COLORS.green }}>
-                          {liveResult}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
+                </CardBody></Card>
               )}
-            </Card>
-          </div>
-        )}
+            </div>
+          </Tab>
 
-        {/* CODE TAB */}
-        {tab === "Code" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Card title="Java Solution">
-              <pre style={{ background: COLORS.heap, borderRadius: 8, padding: 16, fontSize: 13, overflowX: "auto", margin: 0, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
-                <span style={{ color: COLORS.blue }}>class </span><span style={{ color: COLORS.accent }}>KthLargest</span>{"  {\n"}
-                {"    "}<span style={{ color: COLORS.blue }}>private </span><span style={{ color: COLORS.text }}>PriorityQueue&lt;Integer&gt; heap;{"\n"}</span>
-                {"    "}<span style={{ color: COLORS.blue }}>private int </span><span style={{ color: COLORS.text }}>k;{"\n\n"}</span>
+          <Tab key="Code" title="Code">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
+                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
+{`class KthLargest {
+    private PriorityQueue<Integer> `}<span style={{color:ACCENT}}>minHeap</span>{`;
+    private int k;
 
-                {"    "}<span style={{ color: COLORS.blue }}>public </span><span style={{ color: COLORS.green }}>KthLargest</span>(<span style={{ color: COLORS.blue }}>int </span><span style={{ color: COLORS.text }}>k, </span><span style={{ color: COLORS.blue }}>int</span><span style={{ color: COLORS.text }}>[] nums) {"{"}{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.blue }}>this</span><span style={{ color: COLORS.text }}>.k = k;{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.text }}>heap = </span><span style={{ color: COLORS.blue }}>new </span><span style={{ color: COLORS.text }}>PriorityQueue&lt;&gt;(); </span><span style={{ color: COLORS.muted }}>// min-heap by default{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.blue }}>for </span>(<span style={{ color: COLORS.blue }}>int </span><span style={{ color: COLORS.text }}>n : nums) {"{"}{"\n"}</span>
-                {"            "}<span style={{ color: COLORS.text }}>heap.offer(n);{"\n"}</span>
-                {"            "}<span style={{ color: COLORS.blue }}>if </span>(<span style={{ color: COLORS.text }}>heap.size() &gt; k)</span>{"\n"}
-                {"                "}<span style={{ color: COLORS.text }}>heap.poll(); </span><span style={{ color: COLORS.muted }}>// remove smallest, keep top k{"\n"}</span>
-                {"        }"}{"\n"}
-                {"    }"}{"\n\n"}
+    public KthLargest(int k, int[] nums) {
+        this.k = k;
+        `}<span style={{color:ACCENT}}>minHeap</span>{` = new PriorityQueue<>();
+        for (int n : nums) add(n);  `}<span style={{color:"var(--code-muted)"}}>// reuse add() logic</span>{`
+    }
 
-                {"    "}<span style={{ color: COLORS.blue }}>public int </span><span style={{ color: COLORS.green }}>add</span>(<span style={{ color: COLORS.blue }}>int </span><span style={{ color: COLORS.text }}>val) {"{"}{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.text }}>heap.offer(val);{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.blue }}>if </span>(<span style={{ color: COLORS.text }}>heap.size() &gt; k){"\n"}</span>
-                {"            "}<span style={{ color: COLORS.text }}>heap.poll();{"\n"}</span>
-                {"        "}<span style={{ color: COLORS.blue }}>return </span><span style={{ color: COLORS.text }}>heap.peek(); </span><span style={{ color: COLORS.muted }}>// root = kth largest{"\n"}</span>
-                {"    }"}{"\n"}
-                {"}"}
-              </pre>
-            </Card>
-
-            <Card title="Line-by-line Breakdown">
-              {[
-                { line: "new PriorityQueue<>()", exp: "Java's PriorityQueue is a min-heap by default — the smallest element sits at the root (peek/poll)." },
-                { line: "heap.offer(n)", exp: "Inserts a value into the heap in O(log k) time. 'offer' is preferred over 'add' in queue contexts." },
-                { line: "if (heap.size() > k) heap.poll()", exp: "If we exceed k elements, remove the smallest. This keeps only the top-k largest values in the heap." },
-                { line: "heap.peek()", exp: "Returns (without removing) the root — the minimum of our top-k elements, which is the kth largest overall." },
-              ].map(({ line, exp }) => (
-                <div key={line} style={{ borderBottom: `1px solid ${COLORS.border}`, padding: "12px 0", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                  <code style={{ background: COLORS.heap, padding: "3px 8px", borderRadius: 4, fontSize: 12, color: COLORS.accent, whiteSpace: "nowrap", flexShrink: 0 }}>{line}</code>
-                  <span style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6 }}>{exp}</span>
+    public int add(int val) {
+        `}<span style={{color:ACCENT}}>minHeap</span>{`.offer(val);
+        if (`}<span style={{color:ACCENT}}>minHeap</span>{`.size() > k)
+            `}<span style={{color:ACCENT}}>minHeap</span>{`.poll();  `}<span style={{color:"var(--code-muted)"}}>// remove smallest</span>{`
+        return `}<span style={{color:GREEN}}>`minHeap.peek()`</span>{`;  `}<span style={{color:"var(--code-muted)"}}>// root = kth largest</span>{`
+    }
+}`}
+                </pre>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Pattern Cheat Sheet</p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    {t:"Kth largest?",         a:"Min-heap of size k",                   c:ACCENT},
+                    {t:"Why min-heap not max?", a:"Root is the kth largest (smallest of top-k)",c:GREEN},
+                    {t:"Heap too big?",         a:"pop() the min — it's below the kth",  c:BLUE},
+                    {t:"Return value?",         a:"peek() — always the kth largest",      c:ACCENT},
+                  ].map(({t,a,c})=>(
+                    <div key={t} className="flex gap-3 items-center rounded-lg px-3 py-2.5"
+                      style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                      <code className="text-xs text-default-400 flex-1">{t}</code>
+                      <span className="text-xs font-semibold" style={{color:c}}>→ {a}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </Card>
+              </CardBody></Card>
+            </div>
+          </Tab>
 
-            <Card title="Java Heap Cheat Sheet">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                {[
-                  { op: "new PriorityQueue<>()", desc: "Min-heap (default)" },
-                  { op: "new PriorityQueue<>(Collections.reverseOrder())", desc: "Max-heap" },
-                  { op: "heap.offer(val)", desc: "Insert — O(log n)" },
-                  { op: "heap.poll()", desc: "Remove & return min — O(log n)" },
-                  { op: "heap.peek()", desc: "Read min without removing — O(1)" },
-                  { op: "heap.size()", desc: "Current number of elements" },
-                ].map(({ op, desc }) => (
-                  <div key={op} style={{ background: COLORS.heap, borderRadius: 6, padding: "10px 12px" }}>
-                    <code style={{ fontSize: 11, color: COLORS.accent, display: "block", marginBottom: 4 }}>{op}</code>
-                    <span style={{ fontSize: 12, color: COLORS.muted }}>{desc}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card title="Common Gotchas">
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  { icon: "⚠️", text: "PriorityQueue is a min-heap — the root is the SMALLEST. To get a max-heap pass Collections.reverseOrder() to the constructor." },
-                  { icon: "⚠️", text: "Use offer/poll (not add/remove) — they return false/null on failure instead of throwing exceptions." },
-                  { icon: "✅", text: "You never need to sort! The heap invariant guarantees peek() always returns the minimum of the stored elements in O(1)." },
-                ].map(({ icon, text }) => (
-                  <div key={text} style={{ display: "flex", gap: 10, background: COLORS.heap, borderRadius: 6, padding: "10px 12px" }}>
-                    <span>{icon}</span>
-                    <span style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6 }}>{text}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
+        </Tabs>
       </div>
-    </div>
-  );
-}
-
-function Card({ title, children }) {
-  return (
-    <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 20 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 14, letterSpacing: "0.05em", textTransform: "uppercase", opacity: 0.7 }}>{title}</div>
-      {children}
     </div>
   );
 }

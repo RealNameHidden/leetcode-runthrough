@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --viz-bg: #f8fafc;
+  --viz-surface: #f1f5f9;
+  --viz-border: #e2e8f0;
+  --viz-node-bg: #ffffff;
+  --viz-text: #1e293b;
+  --viz-muted: #64748b;
+  --code-bg: #0d1117;
+  --code-border: #30363d;
+  --code-text: #e6edf3;
+  --code-muted: #8b949e;
+}
+
+.dark {
+  --viz-bg: #0d1117;
+  --viz-surface: #161b22;
+  --viz-border: #30363d;
+  --viz-node-bg: #1c2333;
+  --viz-text: #e6edf3;
+  --viz-muted: #8b949e;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}

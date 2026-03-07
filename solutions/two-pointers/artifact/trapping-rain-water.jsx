@@ -1,102 +1,81 @@
+export const difficulty = 'Hard'
 import { useState, useEffect } from "react";
+import { Tabs, Tab } from "@heroui/react";
+import { Card, CardBody } from "@heroui/react";
+import { Button } from "@heroui/react";
+import { Chip } from "@heroui/react";
+import { Input } from "@heroui/react";
 
-const C = {
-  bg: "#07101f", card: "#0c1830", border: "#162b4a",
-  water: "rgba(96,165,250,0.45)", waterBright: "rgba(147,197,253,0.85)",
-  left: "#f97316", right: "#c084fc",
-  green: "#4ade80", greenSoft: "#4ade8018",
-  amber: "#fbbf24", amberSoft: "#fbbf2418",
-  accent: "#38bdf8", accentSoft: "#38bdf818",
-  stone: "#334155", muted: "#4b6a8c", text: "#cbd5e1", heap: "#091420",
-};
+const WATER="rgba(96,165,250,0.45)",WATERHI="rgba(147,197,253,0.85)";
+const LEFT="#f97316",RIGHT="#c084fc",GREEN="#4ade80",AMBER="#fbbf24",ACCENT="#38bdf8";
 
-function simulate(heights) {
-  const n = heights.length;
-  const waterArr = new Array(n).fill(0);
-  const steps = [];
-  let left = 0, right = n - 1, leftMax = 0, rightMax = 0, total = 0;
-
-  steps.push({
-    left, right, leftMax, rightMax, total,
-    waterArr: [...waterArr], activeIdx: null, waterAdded: 0,
-    action: "init", desc: `Initialize: left=0, right=${n - 1}. Track leftMax & rightMax as we squeeze inward.`
-  });
-
-  while (left < right) {
-    if (heights[left] <= heights[right]) {
-      if (heights[left] >= leftMax) {
-        leftMax = heights[left];
-        steps.push({ left, right, leftMax, rightMax, total, waterArr: [...waterArr], activeIdx: left, waterAdded: 0, action: "updateMax", side: "left", desc: `h[${left}]=${heights[left]} ≥ leftMax → new leftMax = ${leftMax}. This bar is a wall, no water trapped.` });
-      } else {
-        const w = leftMax - heights[left];
-        waterArr[left] = w; total += w;
-        steps.push({ left, right, leftMax, rightMax, total, waterArr: [...waterArr], activeIdx: left, waterAdded: w, action: "trap", side: "left", desc: `h[${left}]=${heights[left]} < leftMax=${leftMax} → trap ${w} unit${w !== 1 ? "s" : ""}. Running total = ${total}` });
+function simulate(heights){
+  const n=heights.length;
+  const waterArr=new Array(n).fill(0);
+  const steps=[];
+  let left=0,right=n-1,leftMax=0,rightMax=0,total=0;
+  steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:null,waterAdded:0,
+    action:"init",desc:`Init: left=0, right=${n-1}. Squeeze inward tracking leftMax & rightMax.`});
+  while(left<right){
+    if(heights[left]<=heights[right]){
+      if(heights[left]>=leftMax){
+        leftMax=heights[left];
+        steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:left,waterAdded:0,
+          action:"updateMax",side:"left",desc:`h[${left}]=${heights[left]} ≥ leftMax → new leftMax=${leftMax}. Wall, no water.`});
+      }else{
+        const w=leftMax-heights[left];waterArr[left]=w;total+=w;
+        steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:left,waterAdded:w,
+          action:"trap",side:"left",desc:`h[${left}]=${heights[left]} < leftMax=${leftMax} → trap ${w} unit${w!==1?"s":""}. Total=${total}`});
       }
       left++;
-    } else {
-      if (heights[right] >= rightMax) {
-        rightMax = heights[right];
-        steps.push({ left, right, leftMax, rightMax, total, waterArr: [...waterArr], activeIdx: right, waterAdded: 0, action: "updateMax", side: "right", desc: `h[${right}]=${heights[right]} ≥ rightMax → new rightMax = ${rightMax}. This bar is a wall, no water trapped.` });
-      } else {
-        const w = rightMax - heights[right];
-        waterArr[right] = w; total += w;
-        steps.push({ left, right, leftMax, rightMax, total, waterArr: [...waterArr], activeIdx: right, waterAdded: w, action: "trap", side: "right", desc: `h[${right}]=${heights[right]} < rightMax=${rightMax} → trap ${w} unit${w !== 1 ? "s" : ""}. Running total = ${total}` });
+    }else{
+      if(heights[right]>=rightMax){
+        rightMax=heights[right];
+        steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:right,waterAdded:0,
+          action:"updateMax",side:"right",desc:`h[${right}]=${heights[right]} ≥ rightMax → new rightMax=${rightMax}. Wall, no water.`});
+      }else{
+        const w=rightMax-heights[right];waterArr[right]=w;total+=w;
+        steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:right,waterAdded:w,
+          action:"trap",side:"right",desc:`h[${right}]=${heights[right]} < rightMax=${rightMax} → trap ${w} unit${w!==1?"s":""}. Total=${total}`});
       }
       right--;
     }
   }
-  steps.push({ left, right, leftMax, rightMax, total, waterArr: [...waterArr], activeIdx: null, waterAdded: 0, action: "done", desc: `left ≥ right — pointers met! Total trapped = ${total} units.` });
+  steps.push({left,right,leftMax,rightMax,total,waterArr:[...waterArr],activeIdx:null,waterAdded:0,
+    action:"done",desc:`Pointers met → total trapped = ${total} units.`});
   return steps;
 }
 
-const CHART_H = 160;
+const CHART_H=160;
 
-function BarChart({ heights, waterArr, leftPtr, rightPtr, activeIdx, action }) {
-  const maxH = Math.max(...heights, 1);
-  const n = heights.length;
-  const barW = Math.max(20, Math.min(48, Math.floor(520 / n) - 5));
-
-  return (
-    <div style={{ overflowX: "auto", padding: "4px 0" }}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, justifyContent: "center", minWidth: n * (barW + 4), height: CHART_H + 56 }}>
-        {heights.map((h, i) => {
-          const stonePx = Math.max(h > 0 ? Math.round((h / maxH) * CHART_H) : 4, h > 0 ? 6 : 4);
-          const wt = waterArr[i] || 0;
-          const waterPx = wt > 0 ? Math.max(Math.round((wt / maxH) * CHART_H), 4) : 0;
-          const isLeft = i === leftPtr, isRight = i === rightPtr, isActive = i === activeIdx;
-          const justTrapped = action === "trap" && isActive;
-
-          let stoneColor = C.stone;
-          if (isActive) stoneColor = isLeft ? C.left : C.right;
-          else if (isLeft) stoneColor = "#9a3412";
-          else if (isRight) stoneColor = "#6b21a8";
-
-          return (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: CHART_H + 56 }}>
-              <div style={{ display: "flex", flexDirection: "column", width: barW }}>
-                {waterPx > 0 && (
-                  <div style={{
-                    height: waterPx,
-                    background: justTrapped ? "rgba(96,165,250,0.88)" : C.water,
-                    borderTop: `2px solid ${C.waterBright}`,
-                    transition: "all 0.3s",
-                    boxShadow: justTrapped ? "0 0 12px rgba(96,165,250,0.6)" : "none"
-                  }} />
+function BarChart({heights,waterArr,leftPtr,rightPtr,activeIdx,action}){
+  const maxH=Math.max(...heights,1);
+  const n=heights.length;
+  const barW=Math.max(20,Math.min(48,Math.floor(520/n)-5));
+  return(
+    <div className="overflow-x-auto py-1">
+      <div className="flex items-end justify-center gap-1" style={{minWidth:n*(barW+4),height:CHART_H+56}}>
+        {heights.map((h,i)=>{
+          const stonePx=Math.max(h>0?Math.round((h/maxH)*CHART_H):4,h>0?6:4);
+          const wt=waterArr[i]||0;
+          const waterPx=wt>0?Math.max(Math.round((wt/maxH)*CHART_H),4):0;
+          const isLeft=i===leftPtr,isRight=i===rightPtr,isActive=i===activeIdx;
+          const justTrapped=action==="trap"&&isActive;
+          let stoneColor="var(--viz-surface)";
+          if(isActive)stoneColor=isLeft?LEFT:RIGHT;
+          else if(isLeft)stoneColor="#9a3412";
+          else if(isRight)stoneColor="#6b21a8";
+          return(
+            <div key={i} className="flex flex-col items-center justify-end" style={{height:CHART_H+56,width:barW}}>
+              <div className="flex flex-col" style={{width:barW}}>
+                {waterPx>0&&(
+                  <div style={{height:waterPx,background:justTrapped?WATERHI:WATER,borderRadius:"2px 2px 0 0",transition:"all 0.2s"}}/>
                 )}
-                <div style={{
-                  height: stonePx,
-                  background: stoneColor,
-                  borderRadius: "2px 2px 0 0",
-                  outline: isLeft ? `2px solid ${C.left}` : isRight ? `2px solid ${C.right}` : "none",
-                  outlineOffset: 2,
-                  transition: "all 0.25s",
-                  boxShadow: isActive ? `0 0 16px ${isLeft ? C.left : C.right}88` : "none"
-                }} />
+                <div style={{height:stonePx,background:stoneColor,border:`1.5px solid ${isActive?isLeft?LEFT:RIGHT:isLeft?"#9a3412":isRight?"#6b21a8":"var(--viz-border)"}`,borderRadius:waterPx>0?"0":"2px 2px 0 0",transition:"all 0.2s"}}/>
               </div>
-              <div style={{ fontSize: 10, color: C.muted, marginTop: 4, fontFamily: "monospace" }}>{h}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, height: 16, fontFamily: "monospace", color: isLeft && isRight ? C.accent : isLeft ? C.left : isRight ? C.right : "transparent" }}>
-                {isLeft && isRight ? "▲" : isLeft ? "L" : isRight ? "R" : "·"}
-              </div>
+              <div className="text-[9px] mt-1 font-mono" style={{color:"var(--viz-muted)"}}>{h}</div>
+              {isLeft&&<div className="text-[9px] font-bold" style={{color:LEFT}}>L</div>}
+              {isRight&&<div className="text-[9px] font-bold" style={{color:RIGHT}}>R</div>}
             </div>
           );
         })}
@@ -105,387 +84,213 @@ function BarChart({ heights, waterArr, leftPtr, rightPtr, activeIdx, action }) {
   );
 }
 
-function Card({ title, children }) {
-  return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 14, letterSpacing: "0.12em", textTransform: "uppercase" }}>{title}</div>
-      {children}
-    </div>
-  );
-}
+const PRESETS=[
+  {label:"LC Example 1",val:"0,1,0,2,1,0,1,3,2,1,2,1"},
+  {label:"LC Example 2",val:"4,2,0,3,2,5"},
+  {label:"Simple",      val:"3,0,2,0,4"},
+  {label:"No water",    val:"1,2,3,4,5"},
+];
 
-const TABS = ["Problem", "Intuition", "Visualizer", "Code"];
+export default function App(){
+  const [tab,setTab]=useState("Problem");
+  const [heightsStr,setHeightsStr]=useState("0,1,0,2,1,0,1,3,2,1,2,1");
+  const [steps,setSteps]=useState([]);
+  const [si,setSi]=useState(0);
 
-export default function App() {
-  const [tab, setTab] = useState("Problem");
-  const [hStr, setHStr] = useState("4,2,0,3,2,5");
-  const [steps, setSteps] = useState([]);
-  const [si, setSi] = useState(0);
-  const [liveStr, setLiveStr] = useState("");
-  const [liveResult, setLiveResult] = useState(null);
-  const [liveRan, setLiveRan] = useState(false);
+  useEffect(()=>{
+    const h=heightsStr.split(",").map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n>=0);
+    if(h.length>=2){setSteps(simulate(h));setSi(0);}
+  },[heightsStr]);
 
-  const parseHeights = (s) => s.split(",").map(x => parseInt(x.trim())).filter(n => !isNaN(n) && n >= 0);
+  const step=steps[si]||null;
+  const heights=heightsStr.split(",").map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n>=0);
+  const stepColor=step?.action==="done"?GREEN:step?.action==="trap"?ACCENT:step?.side==="left"?LEFT:RIGHT;
 
-  useEffect(() => {
-    const arr = parseHeights(hStr);
-    if (arr.length >= 2) { setSteps(simulate(arr)); setSi(0); }
-  }, [hStr]);
-
-  const step = steps[si] || null;
-  const heights = parseHeights(hStr);
-
-  const runLive = () => {
-    const arr = parseHeights(liveStr);
-    if (arr.length < 2) return;
-    const s = simulate(arr);
-    setLiveResult(s[s.length - 1].total);
-    setLiveRan(true);
-  };
-
-  const bannerStyle = (action) => {
-    if (action === "trap") return { bg: "rgba(56,189,248,0.08)", border: C.accent };
-    if (action === "updateMax") return { bg: C.amberSoft, border: C.amber };
-    if (action === "done") return { bg: C.greenSoft, border: C.green };
-    return { bg: C.accentSoft, border: C.accent };
-  };
-
-  return (
-    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Courier New', monospace" }}>
-
-      {/* Header */}
-      <div style={{ borderBottom: `1px solid ${C.border}`, padding: "15px 24px", display: "flex", alignItems: "center", gap: 14, background: C.card }}>
-        <span style={{ fontSize: 20 }}>🌧️</span>
-        <span style={{ fontSize: 17, fontWeight: 700, fontFamily: "Georgia, serif", letterSpacing: "-0.3px" }}>Trapping Rain Water</span>
-        <div style={{ padding: "2px 10px", borderRadius: 20, background: "#ef444418", border: "1px solid #ef4444", fontSize: 11, color: "#ef4444" }}>Hard · Two Pointers</div>
+  return(
+    <div className="min-h-full bg-background text-foreground">
+      <div className="border-b border-divider px-6 py-4 flex items-center gap-3 bg-content1">
+        <span className="text-xl">🌧️</span>
+        <h1 className="font-semibold text-base">Trapping Rain Water</h1>
+        <Chip size="sm" color="danger" variant="flat">Hard</Chip>
+        <Chip size="sm" color="primary" variant="flat">Two Pointers</Chip>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, padding: "0 24px", background: C.card }}>
-        {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{
-            background: "none", border: "none", cursor: "pointer",
-            padding: "11px 16px", fontSize: 13,
-            color: tab === t ? C.accent : C.muted,
-            borderBottom: tab === t ? `2px solid ${C.accent}` : "2px solid transparent",
-            fontFamily: "inherit", transition: "color 0.2s"
-          }}>{t}</button>
-        ))}
-      </div>
+      <div className="px-4 pt-3">
+        <Tabs selectedKey={tab} onSelectionChange={k=>setTab(String(k))} variant="underlined" color="primary" size="sm">
 
-      <div style={{ maxWidth: 840, margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+          <Tab key="Problem" title="Problem">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+                <p className="text-sm text-default-600 leading-relaxed">
+                  Given an array of non-negative integers representing heights of bars, compute how much <span style={{color:ACCENT}} className="font-semibold">rain water</span> can be trapped between bars after it rains.
+                </p>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Formula</p>
+                <div className="rounded-lg px-4 py-3 text-center" style={{background:`${ACCENT}0d`,border:`1px solid ${ACCENT}33`}}>
+                  <p className="text-sm font-mono font-bold" style={{color:ACCENT}}>
+                    water[i] = min(leftMax, rightMax) - height[i]
+                  </p>
+                </div>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example</p>
+                <pre className="rounded-lg p-4 text-xs leading-8" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
+{`Input:  [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: `}<span style={{color:GREEN,fontWeight:700}}>6</span>
+                </pre>
+              </CardBody></Card>
+            </div>
+          </Tab>
 
-        {/* ── PROBLEM ── */}
-        {tab === "Problem" && (<>
-          <Card title="Problem Statement">
-            <p style={{ color: C.muted, lineHeight: 1.8, margin: 0 }}>
-              Given an array of non-negative integers <span style={{ color: C.amber }}>height</span> representing an elevation map where each bar has width 1, compute how much water it can <strong style={{ color: C.text }}>trap after raining</strong>.
-            </p>
-          </Card>
-
-          <Card title="Visual Example  →  height = [4,2,0,3,2,5]">
-            <div style={{ background: C.heap, borderRadius: 10, padding: 20 }}>
-              {/* Static visual */}
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, justifyContent: "center", marginBottom: 16 }}>
-                {[4,2,0,3,2,5].map((h, i) => {
-                  const maxH = 5;
-                  const water = [0,2,4,1,2,0][i];
-                  return (
-                    <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      {water > 0 && <div style={{ width: 44, height: Math.round((water/maxH)*120), background: C.water, borderTop: `2px solid ${C.waterBright}` }} />}
-                      <div style={{ width: 44, height: h > 0 ? Math.round((h/maxH)*120) : 4, background: C.stone, borderRadius: "2px 2px 0 0" }} />
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 4, fontFamily: "monospace" }}>{h}</div>
+          <Tab key="Intuition" title="Intuition">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">🧠 The Key Insight</p>
+                <p className="text-sm text-default-600 leading-relaxed mb-4">
+                  Water above position i is determined by <code className="text-foreground">min(leftMax, rightMax) - height[i]</code>. With two pointers, we always know which side is limiting.
+                </p>
+                <div className="rounded-lg px-4 py-3 mb-3" style={{background:`${LEFT}0d`,border:`1px solid ${LEFT}33`}}>
+                  <p className="text-xs font-bold mb-1" style={{color:LEFT}}>Process left when height[L] ≤ height[R]</p>
+                  <p className="text-xs text-default-500">Right wall is taller — leftMax is the binding constraint. Safe to compute water for L.</p>
+                </div>
+                <div className="rounded-lg px-4 py-3" style={{background:`${RIGHT}0d`,border:`1px solid ${RIGHT}33`}}>
+                  <p className="text-xs font-bold mb-1" style={{color:RIGHT}}>Process right when height[R] &lt; height[L]</p>
+                  <p className="text-xs text-default-500">Left wall is taller — rightMax is the binding constraint. Safe to compute water for R.</p>
+                </div>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">⚡ Complexity</p>
+                <div className="flex gap-3">
+                  {[{l:"TIME",v:"O(n)",s:"One pass"},{l:"SPACE",v:"O(1)",s:"Two pointers + two maxes"}].map(({l,v,s})=>(
+                    <div key={l} className="flex-1 rounded-lg p-4 text-center" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                      <p className="text-xs text-default-400 mb-1">{l}</p>
+                      <p className="font-bold text-base" style={{color:ACCENT}}>{v}</p>
+                      <p className="text-xs text-default-400 mt-1">{s}</p>
                     </div>
-                  );
-                })}
-              </div>
-              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 14, display: "flex", flexDirection: "column", gap: 6 }}>
-                {[
-                  ["idx 1", "min(4, 5) − 2", "= 2 units"],
-                  ["idx 2", "min(4, 5) − 0", "= 4 units"],
-                  ["idx 3", "min(4, 5) − 3", "= 1 unit"],
-                  ["idx 4", "min(4, 5) − 2", "= 2 units"],
-                ].map(([idx, formula, res]) => (
-                  <div key={idx} style={{ display: "flex", gap: 12, fontSize: 12 }}>
-                    <span style={{ color: C.muted, minWidth: 36 }}>{idx}:</span>
-                    <span style={{ color: C.text }}>{formula}</span>
-                    <span style={{ color: C.green, fontWeight: 700 }}>{res}</span>
-                  </div>
-                ))}
-                <div style={{ marginTop: 8, padding: "8px 12px", background: C.greenSoft, border: `1px solid ${C.green}`, borderRadius: 6, color: C.green, fontWeight: 700, fontSize: 14 }}>
-                  Total = 9 units trapped 🎉
+                  ))}
                 </div>
-              </div>
+              </CardBody></Card>
             </div>
-          </Card>
+          </Tab>
 
-          <Card title="Classic Example  →  height = [0,1,0,2,1,0,1,3,2,1,2,1]">
-            <div style={{ background: C.heap, borderRadius: 10, padding: 16 }}>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 3, justifyContent: "center", marginBottom: 12 }}>
-                {[0,1,0,2,1,0,1,3,2,1,2,1].map((h, i) => {
-                  const water = [0,0,1,0,1,2,1,0,0,1,0,0][i];
-                  const maxH = 3;
-                  return (
-                    <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      {water > 0 && <div style={{ width: 28, height: Math.round((water/maxH)*90), background: C.water, borderTop: `2px solid ${C.waterBright}` }} />}
-                      <div style={{ width: 28, height: h > 0 ? Math.round((h/maxH)*90) : 3, background: C.stone, borderRadius: "2px 2px 0 0" }} />
-                      <div style={{ fontSize: 9, color: C.muted, marginTop: 3 }}>{h}</div>
+          <Tab key="Visualizer" title="Visualizer">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Configure</p>
+                <div className="flex gap-2 mb-3 flex-wrap">
+                  {PRESETS.map(p=>(
+                    <Button key={p.label} size="sm"
+                      variant={heightsStr===p.val?"flat":"bordered"}
+                      color={heightsStr===p.val?"primary":"default"}
+                      onPress={()=>setHeightsStr(p.val)}>{p.label}</Button>
+                  ))}
+                </div>
+                <Input label="Heights" value={heightsStr} onValueChange={setHeightsStr}
+                  variant="bordered" size="sm"/>
+                <div className="flex gap-4 mt-3">
+                  {[{c:LEFT,l:"Left pointer"},{c:RIGHT,l:"Right pointer"},{c:ACCENT,l:"Water trapped"}].map(({c,l})=>(
+                    <div key={l} className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{background:c}}/>
+                      <span className="text-xs text-default-400">{l}</span>
                     </div>
-                  );
-                })}
-              </div>
-              <div style={{ textAlign: "center", color: C.green, fontWeight: 700 }}>Answer = 6 units</div>
-            </div>
-          </Card>
-
-          <Card title="Constraints">
-            <ul style={{ color: C.muted, lineHeight: 2.2, paddingLeft: 20, margin: 0 }}>
-              <li><code style={{ color: C.text }}>n == height.length</code></li>
-              <li><code style={{ color: C.text }}>1 ≤ n ≤ 2 × 10⁴</code></li>
-              <li><code style={{ color: C.text }}>0 ≤ height[i] ≤ 10⁵</code></li>
-            </ul>
-          </Card>
-        </>)}
-
-        {/* ── INTUITION ── */}
-        {tab === "Intuition" && (<>
-          <Card title="🧠 Core Formula">
-            <div style={{ background: C.heap, borderRadius: 10, padding: 18, textAlign: "center", marginBottom: 14 }}>
-              <div style={{ fontSize: 17, color: C.accent, fontWeight: 700, letterSpacing: 1 }}>
-                water[i] = min(maxLeft, maxRight) − height[i]
-              </div>
-              <div style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>Water at any column is capped by the shorter surrounding wall, minus the column's own height</div>
-            </div>
-            <p style={{ color: C.muted, lineHeight: 1.75, margin: 0 }}>
-              Imagine water trying to fill a valley. It rises until it hits the shorter wall on either side — any excess spills over. The formula captures exactly that.
-            </p>
-          </Card>
-
-          <Card title="📈 Three Approaches">
-            {[
-              { label: "Brute Force", time: "O(n²)", space: "O(1)", color: "#ef4444", note: "For each i, scan left and right for maximums", x: true },
-              { label: "Prefix Arrays", time: "O(n)", space: "O(n)", color: C.amber, note: "Precompute leftMax[] and rightMax[] in two passes", x: false },
-              { label: "Two Pointers ✓", time: "O(n)", space: "O(1)", color: C.green, note: "Running maxes, single pass — optimal!", x: false },
-            ].map(({ label, time, space, color, note, x }) => (
-              <div key={label} style={{ display: "flex", gap: 14, alignItems: "center", background: C.heap, borderRadius: 8, padding: "12px 14px", marginBottom: 10 }}>
-                <div style={{ flex: 2, color: C.text, fontSize: 13, fontWeight: 600 }}>{label}</div>
-                <div style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: C.muted }}>TIME</div>
-                  <div style={{ color, fontWeight: 700, fontSize: 13 }}>{time}</div>
+                  ))}
                 </div>
-                <div style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: C.muted }}>SPACE</div>
-                  <div style={{ color, fontWeight: 700, fontSize: 13 }}>{space}</div>
-                </div>
-                <div style={{ flex: 3, fontSize: 11, color: C.muted }}>{note}</div>
-              </div>
-            ))}
-          </Card>
+              </CardBody></Card>
 
-          <Card title="⚡ Two Pointer Deep Dive">
-            {[
-              { n: "1", t: "Start from both ends", d: "left=0, right=n−1. We maintain leftMax and rightMax as running maximums from each side — no arrays needed." },
-              { n: "2", t: "Always process the shorter side", d: "If height[left] ≤ height[right]: the right side is at least as tall, so leftMax is the true ceiling. We can safely compute water at left right now." },
-              { n: "3", t: "Update max or trap water", d: "If height[ptr] ≥ runningMax → update the max (this bar is a wall). Otherwise → water += runningMax − height[ptr]." },
-              { n: "4", t: "Mirror for the right side", d: "When height[right] < height[left], rightMax is the ceiling. Process right and move right-- inward." },
-              { n: "5", t: "Stop when left ≥ right", d: "Every column has been processed exactly once. Return total." },
-            ].map(({ n, t, d }) => (
-              <div key={n} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 14 }}>
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: C.accentSoft, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.accent, flexShrink: 0, fontWeight: 700 }}>{n}</div>
-                <div>
-                  <div style={{ color: C.text, fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{t}</div>
-                  <div style={{ color: C.muted, fontSize: 12, lineHeight: 1.7 }}>{d}</div>
-                </div>
-              </div>
-            ))}
-          </Card>
-
-          <Card title="🔑 The Critical Insight — Why is the shorter side safe?">
-            <div style={{ background: C.heap, borderRadius: 10, padding: 16 }}>
-              <p style={{ color: C.muted, lineHeight: 1.8, margin: 0 }}>
-                Suppose <span style={{ color: C.left }}>height[left] ≤ height[right]</span>. Water at <code style={{ color: C.accent }}>left</code> = <code>min(leftMax, rightMax) − h[left]</code>.
-              </p>
-              <p style={{ color: C.muted, lineHeight: 1.8, margin: "10px 0 0" }}>
-                Since <span style={{ color: C.right }}>height[right]</span> is already ≥ height[left], and rightMax ≥ height[right], we know <strong style={{ color: C.text }}>rightMax ≥ leftMax is possible but doesn't matter</strong> — either way, <code>min(leftMax, rightMax) = leftMax</code>. We can compute exactly, right now. ✅
-              </p>
-            </div>
-          </Card>
-        </>)}
-
-        {/* ── VISUALIZER ── */}
-        {tab === "Visualizer" && (<>
-          <Card title="Configure Heights">
-            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <span style={{ fontSize: 12, color: C.muted }}>height array (comma-separated non-negative integers)</span>
-              <input value={hStr} onChange={e => setHStr(e.target.value)}
-                style={{ background: C.heap, border: `1px solid ${C.border}`, color: C.text, borderRadius: 6, padding: "9px 14px", fontSize: 14, fontFamily: "inherit" }} />
-            </label>
-          </Card>
-
-          {/* Legend */}
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-            {[
-              { color: C.left, label: "L = left pointer" },
-              { color: C.right, label: "R = right pointer" },
-              { color: "rgba(96,165,250,0.6)", label: "trapped water" },
-              { color: C.amber, label: "new wall max" },
-            ].map(({ color, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 12, height: 12, borderRadius: 2, background: color }} />
-                <span style={{ color: C.muted, fontSize: 12 }}>{label}</span>
-              </div>
-            ))}
-          </div>
-
-          {step && steps.length > 0 && (
-            <Card title="Step-by-Step Simulation">
-              {/* Step pills */}
-              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 16 }}>
-                {steps.map((s, i) => (
-                  <button key={i} onClick={() => setSi(i)} style={{
-                    padding: "4px 10px", borderRadius: 4, fontSize: 11, cursor: "pointer", fontFamily: "inherit",
-                    background: i === si ? C.accent : C.heap, border: `1px solid ${i === si ? C.accent : C.border}`,
-                    color: i === si ? "#060f1d" : C.muted, fontWeight: i === si ? 700 : 400,
-                  }}>
-                    {i === 0 ? "init" : i === steps.length - 1 ? "✓done" : `s${i}`}
-                  </button>
-                ))}
-              </div>
-
-              {/* Banner */}
-              {(() => {
-                const { bg, border } = bannerStyle(step.action);
-                return (
-                  <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: "10px 14px", marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, color: C.muted, marginBottom: 3 }}>STEP {si + 1} / {steps.length}</div>
-                    <div style={{ fontSize: 14, color: C.text }}>{step.desc}</div>
+              {steps.length>0&&step&&(
+                <Card><CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Two Pointer Simulation</p>
+                  <div className="flex gap-1.5 mb-4 flex-wrap">
+                    {steps.map((_,i)=>(
+                      <button key={i} onClick={()=>setSi(i)}
+                        className="px-2 py-0.5 rounded text-[11px] cursor-pointer"
+                        style={{background:i===si?`${ACCENT}20`:"var(--viz-surface)",border:`1px solid ${i===si?ACCENT:"var(--viz-border)"}`,color:i===si?ACCENT:"var(--viz-muted)"}}>
+                        {i===0?"init":i}
+                      </button>
+                    ))}
                   </div>
-                );
-              })()}
-
-              {/* Chart */}
-              <BarChart heights={heights} waterArr={step.waterArr} leftPtr={step.left} rightPtr={step.right} activeIdx={step.activeIdx} action={step.action} />
-
-              {/* Stats */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-                {[
-                  { label: "leftMax", val: step.leftMax, color: C.left },
-                  { label: "rightMax", val: step.rightMax, color: C.right },
-                  { label: "water added", val: `+${step.waterAdded}`, color: C.accent },
-                  { label: "total trapped", val: step.total, color: C.green },
-                ].map(({ label, val, color }) => (
-                  <div key={label} style={{ flex: 1, minWidth: 80, background: C.heap, borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
-                    <div style={{ fontSize: 10, color: C.muted, marginBottom: 4, textTransform: "uppercase" }}>{label}</div>
-                    <div style={{ color, fontWeight: 700, fontSize: 20 }}>{val}</div>
+                  <div className="rounded-lg px-4 py-3 mb-4" style={{background:`${stepColor}12`,border:`1px solid ${stepColor}44`}}>
+                    <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>
+                    <p className="text-sm text-foreground">{step.desc}</p>
                   </div>
-                ))}
-              </div>
-
-              {/* Nav */}
-              <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-                <button onClick={() => setSi(i => Math.max(0, i - 1))} disabled={si === 0}
-                  style={{ flex: 1, padding: 9, background: C.heap, border: `1px solid ${C.border}`, color: si === 0 ? C.muted : C.text, borderRadius: 6, cursor: si === 0 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 13 }}>← Prev</button>
-                <button onClick={() => setSi(i => Math.min(steps.length - 1, i + 1))} disabled={si === steps.length - 1}
-                  style={{ flex: 1, padding: 9, background: si === steps.length - 1 ? C.heap : C.accent, border: `1px solid ${si === steps.length - 1 ? C.border : C.accent}`, color: si === steps.length - 1 ? C.muted : "#060f1d", borderRadius: 6, cursor: si === steps.length - 1 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700 }}>Next →</button>
-              </div>
-            </Card>
-          )}
-
-          <Card title="🧪 Quick Test">
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
-              <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-                <span style={{ fontSize: 12, color: C.muted }}>Try your own heights</span>
-                <input value={liveStr} onChange={e => { setLiveStr(e.target.value); setLiveRan(false); }}
-                  onKeyDown={e => e.key === "Enter" && runLive()}
-                  placeholder="e.g. 0,1,0,2,1,0,1,3,2,1,2,1"
-                  style={{ background: C.heap, border: `1px solid ${C.border}`, color: C.text, borderRadius: 6, padding: "9px 14px", fontSize: 14, fontFamily: "inherit" }} />
-              </label>
-              <button onClick={runLive} style={{ padding: "9px 20px", background: C.accentSoft, border: `1px solid ${C.accent}`, color: C.accent, borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Run</button>
+                  <div className="rounded-xl p-4 mb-4" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                    <BarChart heights={heights} waterArr={step.waterArr} leftPtr={step.left} rightPtr={step.right} activeIdx={step.activeIdx} action={step.action}/>
+                  </div>
+                  <div className="flex gap-3 mb-4">
+                    {[
+                      {l:"leftMax",v:step.leftMax,c:LEFT},
+                      {l:"rightMax",v:step.rightMax,c:RIGHT},
+                      {l:"Total Trapped",v:step.total,c:ACCENT},
+                    ].map(({l,v,c})=>(
+                      <div key={l} className="flex-1 rounded-lg py-2 text-center" style={{background:`${c}0d`,border:`1px solid ${c}33`}}>
+                        <p className="text-[10px] text-default-400">{l}</p>
+                        <p className="text-lg font-bold" style={{color:c}}>{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button fullWidth variant="bordered" size="sm" isDisabled={si===0}
+                      onPress={()=>setSi(i=>Math.max(0,i-1))}>← Prev</Button>
+                    <Button fullWidth color="primary" size="sm" isDisabled={si===steps.length-1}
+                      onPress={()=>setSi(i=>Math.min(steps.length-1,i+1))}>Next →</Button>
+                  </div>
+                </CardBody></Card>
+              )}
             </div>
-            {liveRan && liveResult !== null && (
-              <div style={{ marginTop: 12, background: C.greenSoft, border: `1px solid ${C.green}`, borderRadius: 6, padding: "10px 14px", fontSize: 14, color: C.green }}>
-                Trapped water: <strong>{liveResult} units</strong>
-              </div>
-            )}
-          </Card>
-        </>)}
+          </Tab>
 
-        {/* ── CODE ── */}
-        {tab === "Code" && (<>
-          <Card title="Java Solution — Two Pointers O(n) / O(1)">
-            <pre style={{ background: C.heap, borderRadius: 8, padding: 16, fontSize: 12, lineHeight: 2, margin: 0, overflowX: "auto", whiteSpace: "pre-wrap" }}>
-              <span style={{ color: "#93c5fd" }}>class </span><span style={{ color: C.amber }}>Solution</span>{" {\n"}
-              {"    "}<span style={{ color: "#93c5fd" }}>public int </span><span style={{ color: C.green }}>trap</span>(<span style={{ color: "#93c5fd" }}>int</span>{"[] height) {\n"}
-              {"        "}<span style={{ color: C.muted }}>// squeeze inward from both ends{"\n"}</span>
-              {"        "}<span style={{ color: "#93c5fd" }}>int </span><span style={{ color: C.text }}>left = 0, right = height.length - 1;{"\n"}</span>
-              {"        "}<span style={{ color: "#93c5fd" }}>int </span><span style={{ color: C.text }}>leftMax = 0, rightMax = 0, water = 0;{"\n\n"}</span>
-              {"        "}<span style={{ color: C.amber }}>while </span><span style={{ color: C.text }}>(left {"<"} right) {"{\n"}</span>
-              {"            "}<span style={{ color: C.amber }}>if </span><span style={{ color: C.text }}>(height[left] {"<="} height[right]) {"{\n"}</span>
-              {"                "}<span style={{ color: C.muted }}>// left is shorter — leftMax is the true ceiling{"\n"}</span>
-              {"                "}<span style={{ color: C.amber }}>if </span><span style={{ color: C.text }}>(height[left] {">="} leftMax) leftMax = height[left];{"\n"}</span>
-              {"                "}<span style={{ color: C.amber }}>else </span><span style={{ color: C.text }}>water += leftMax - height[left];{"\n"}</span>
-              {"                "}<span style={{ color: C.text }}>left++;{"\n"}</span>
-              {"            "}{" } "}<span style={{ color: C.amber }}>else </span>{"{\n"}
-              {"                "}<span style={{ color: C.muted }}>// right is shorter — rightMax is the true ceiling{"\n"}</span>
-              {"                "}<span style={{ color: C.amber }}>if </span><span style={{ color: C.text }}>(height[right] {">="} rightMax) rightMax = height[right];{"\n"}</span>
-              {"                "}<span style={{ color: C.amber }}>else </span><span style={{ color: C.text }}>water += rightMax - height[right];{"\n"}</span>
-              {"                "}<span style={{ color: C.text }}>right--;{"\n"}</span>
-              {"            "}{" }\n"}
-              {"        "}{" }\n"}
-              {"        "}<span style={{ color: C.amber }}>return </span><span style={{ color: C.text }}>water;{"\n"}</span>
-              {"    }\n}"}
-            </pre>
-          </Card>
+          <Tab key="Code" title="Code">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
+                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
+{`public int trap(int[] height) {
+    int `}<span style={{color:LEFT}}>left = 0</span>{`, `}<span style={{color:RIGHT}}>right = height.length - 1</span>{`;
+    int `}<span style={{color:LEFT}}>leftMax = 0</span>{`, `}<span style={{color:RIGHT}}>rightMax = 0</span>{`;
+    int total = 0;
 
-          <Card title="Line-by-line Breakdown">
-            {[
-              { line: "left=0, right=n−1", exp: "Start from both ends. The pointers march inward until they meet — every index is visited exactly once." },
-              { line: "leftMax, rightMax = 0", exp: "Running maximums from each side. These replace the O(n) prefix arrays from the naive approach." },
-              { line: "height[left] <= height[right]", exp: "The left bar is the bottleneck. Since right is at least as tall, leftMax is the definitive ceiling for the left bar." },
-              { line: "if height[left] >= leftMax", exp: "This bar is taller than everything to its left — it's a wall, not a valley. Update the running max, trap nothing." },
-              { line: "else water += leftMax − height[left]", exp: "We're in a valley. Water fills up to leftMax. The column's own height displaces some water — take the difference." },
-              { line: "left++", exp: "Move inward. We've fully accounted for this column." },
-              { line: "else { ... right-- }", exp: "Exact mirror logic for the right side when height[right] < height[left]. rightMax is the ceiling." },
-              { line: "return water", exp: "All columns processed. Total trapped water accumulated." },
-            ].map(({ line, exp }) => (
-              <div key={line} style={{ borderBottom: `1px solid ${C.border}`, padding: "12px 0", display: "flex", gap: 14, alignItems: "flex-start" }}>
-                <code style={{ background: C.heap, padding: "3px 8px", borderRadius: 4, fontSize: 11, color: C.accent, whiteSpace: "nowrap", flexShrink: 0 }}>{line}</code>
-                <span style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{exp}</span>
-              </div>
-            ))}
-          </Card>
-
-          <Card title="🧩 Pattern Recognition Cheatsheet">
-            {[
-              { icon: "📐", text: 'Write the formula first: water[i] = min(maxL, maxR) − h[i]. This is your anchor.' },
-              { icon: "👈👉", text: "Two pointers squeezing inward: always process the shorter side — it's the bottleneck, so its max IS the ceiling." },
-              { icon: "🪣", text: "Running max trick: leftMax and rightMax update as you walk — no need for prefix arrays (saves O(n) space)." },
-              { icon: "🔗", text: "Same family as Container With Most Water (LC #11) — two pointers, move shorter side. Different goal: fill vs maximize." },
-              { icon: "🆘", text: "Fallback: if you forget two pointers, build leftMax[] and rightMax[] prefix arrays (O(n) time+space) — still full marks." },
-            ].map(({ icon, text }) => (
-              <div key={icon} style={{ display: "flex", gap: 10, background: C.heap, borderRadius: 6, padding: "10px 12px", marginBottom: 8 }}>
-                <span style={{ fontSize: 16 }}>{icon}</span>
-                <span style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{text}</span>
-              </div>
-            ))}
-          </Card>
-
-          <Card title="⚡ Complexity">
-            <div style={{ display: "flex", gap: 12 }}>
-              {[
-                { l: "TIME", v: "O(n)", s: "each element visited once" },
-                { l: "SPACE", v: "O(1)", s: "only 4 integer variables" },
-              ].map(({ l, v, s }) => (
-                <div key={l} style={{ flex: 1, background: C.heap, borderRadius: 8, padding: 14, textAlign: "center" }}>
-                  <div style={{ color: C.muted, fontSize: 11, marginBottom: 6 }}>{l}</div>
-                  <div style={{ color: C.green, fontWeight: 700, fontSize: 18 }}>{v}</div>
-                  <div style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>{s}</div>
+    while (left < right) {
+        if (height[left] <= height[right]) {
+            if (height[left] >= `}<span style={{color:LEFT}}>leftMax</span>{`)
+                `}<span style={{color:LEFT}}>leftMax</span>{` = height[left];  `}<span style={{color:"var(--code-muted)"}}>// new wall</span>{`
+            else
+                total += `}<span style={{color:LEFT}}>leftMax</span>{` - height[left]; `}<span style={{color:"var(--code-muted)"}}>// trap water</span>{`
+            `}<span style={{color:LEFT}}>left++</span>{`;
+        } else {
+            if (height[right] >= `}<span style={{color:RIGHT}}>rightMax</span>{`)
+                `}<span style={{color:RIGHT}}>rightMax</span>{` = height[right];
+            else
+                total += `}<span style={{color:RIGHT}}>rightMax</span>{` - height[right];
+            `}<span style={{color:RIGHT}}>right--</span>{`;
+        }
+    }
+    return total;
+}`}
+                </pre>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Insights</p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    {icon:"🎯",tip:"Process the side with the smaller height — the other side's wall is guaranteed to be at least as tall, making leftMax/rightMax the true bottleneck."},
+                    {icon:"💧",tip:"water[i] = min(leftMax, rightMax) - height[i]. With two pointers, you always know which max is smaller without scanning the other side."},
+                    {icon:"⚡",tip:"O(n) time, O(1) space — better than the O(n) space prefix-max array approach."},
+                    {icon:"🔑",tip:"If height[left] >= leftMax: it's a wall (update max). Otherwise: it's a valley (trap water = leftMax - height[left])."},
+                  ].map(({icon,tip})=>(
+                    <div key={tip} className="flex gap-3 rounded-lg p-3 items-start"
+                      style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                      <span className="text-base">{icon}</span>
+                      <span className="text-sm text-default-500 leading-relaxed">{tip}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </CardBody></Card>
             </div>
-          </Card>
-        </>)}
+          </Tab>
 
+        </Tabs>
       </div>
     </div>
   );
