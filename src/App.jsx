@@ -147,7 +147,7 @@ const categoryOrder = Object.keys(grouped).sort()
             <BookIcon />
           </div>
           <div>
-            <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Artifact Archive</h1>
+            <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Leetcode Archive</h1>
             <p className="hidden sm:block text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
           </div>
         </div>
@@ -248,7 +248,7 @@ const categoryOrder = Object.keys(grouped).sort()
             })}
           </ScrollShadow>
           <div className="px-4 py-2.5 border-t border-divider flex-shrink-0">
-            <p className="text-[10px] text-default-300 text-center">Artifact Archive v2.0</p>
+            <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
           </div>
         </aside>
 
