@@ -7,11 +7,46 @@ import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import { Input } from "@heroui/react";
 
-const ACCENT = "#ec4899";
-const GOLD = "#fbbf24";
-const GREEN = "#10b981";
-const RED = "#ef4444";
+// ── Colors (CLAUDE.md standard) ─────────────────
+const TEAL = "#4ecca3";
+const GOLD = "#f6c90e";
+const BLUE = "#5dade2";
+const RED = "#ff6b6b";
 
+// ── Reusable Components ─────────────────
+function V({ children, color }) {
+  return (
+    <span style={{
+      display: "inline-block", padding: "1px 5px", marginLeft: 2,
+      borderRadius: 4, background: `${color}28`, color, fontWeight: 700, fontSize: 12
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function CodeLine({ children, highlight, annotation, annotationColor }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12,
+      padding: "6px 16px",
+      background: highlight ? "rgba(78,204,163,0.08)" : "transparent",
+      borderLeft: `3px solid ${highlight ? TEAL : "transparent"}`,
+      transition: "background 0.2s",
+    }}>
+      <div style={{ fontSize: 12, fontFamily: "monospace", lineHeight: 1.5, flexShrink: 0 }}>
+        {children}
+      </div>
+      {annotation && (
+        <div style={{ fontSize: 11, color: annotationColor, whiteSpace: "nowrap", fontFamily: "monospace", opacity: 0.85 }}>
+          // {annotation}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Min Heap Implementation ─────────────────
 class MinHeap {
   constructor(compareFn) {
     this.data = [];
@@ -54,54 +89,73 @@ class MinHeap {
   }
 }
 
+// ── Algorithm Simulation ─────────────────
 function simulate(numsStr, k) {
   const nums = numsStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
   if (nums.length === 0) return [];
 
   const steps = [];
   const freqMap = {};
+
+  // Step 1: Count frequencies
   for (const num of nums) {
     freqMap[num] = (freqMap[num] || 0) + 1;
   }
-
   steps.push({
     action: 'counting',
-    desc: `Count frequencies`,
-    freqMap: { ...freqMap }
+    desc: `Count frequencies in array`,
+    freqMap: { ...freqMap },
+    heap: [],
+    currentNum: null,
+    phase: 'counting'
   });
 
+  // Step 2: Build min-heap of size k
   const heap = new MinHeap((a, b) => freqMap[a] - freqMap[b]);
-  for (const num of Object.keys(freqMap).map(Number)) {
+  const uniqueNums = Object.keys(freqMap).map(Number);
+
+  for (let idx = 0; idx < uniqueNums.length; idx++) {
+    const num = uniqueNums[idx];
     heap.push(num);
     steps.push({
       action: 'push',
-      num,
-      freq: freqMap[num],
+      desc: `Push ${num} (freq=${freqMap[num]}) → heap size=${heap.size()}`,
+      freqMap: { ...freqMap },
       heap: [...heap.data],
-      desc: `Push ${num} (freq=${freqMap[num]})`
+      currentNum: num,
+      phase: 'building',
+      heapSize: heap.size()
     });
+
     if (heap.size() > k) {
       const removed = heap.pop();
       steps.push({
         action: 'pop',
-        num: removed,
-        freq: freqMap[removed],
+        desc: `Heap size > k, pop min freq=${freqMap[removed]} (${removed}) → keep top k`,
+        freqMap: { ...freqMap },
         heap: [...heap.data],
-        desc: `Heap size > k, pop min: ${removed}`
+        currentNum: removed,
+        phase: 'building',
+        heapSize: heap.size()
       });
     }
   }
 
+  // Step 3: Result
   const result = [...heap.data].sort((a, b) => freqMap[b] - freqMap[a]);
   steps.push({
     action: 'result',
-    desc: `Result: [${result.join(', ')}]`,
-    freqMap: { ...freqMap }
+    desc: `Final result: [${result.join(', ')}]`,
+    freqMap: { ...freqMap },
+    heap: [...heap.data],
+    phase: 'result',
+    result
   });
 
   return steps;
 }
 
+// ── Heap Visualization ─────────────────
 function HeapViz({ heap, freqMap }) {
   if (!heap || heap.length === 0) return <p className="text-center text-default-400 py-4 text-xs">— empty —</p>;
 
@@ -124,15 +178,15 @@ function HeapViz({ heap, freqMap }) {
               <div key={idx} className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold font-mono transition-all"
                   style={{
-                    background: isRoot ? `${ACCENT}28` : "var(--viz-surface)",
-                    border: `2px solid ${isRoot ? ACCENT : "var(--viz-border)"}`,
-                    color: isRoot ? ACCENT : "var(--viz-text)",
-                    boxShadow: isRoot ? `0 0 12px ${ACCENT}55` : "none"
+                    background: isRoot ? `${TEAL}28` : "var(--viz-surface)",
+                    border: `2px solid ${isRoot ? TEAL : "var(--viz-border)"}`,
+                    color: isRoot ? TEAL : "var(--viz-text)",
+                    boxShadow: isRoot ? `0 0 12px ${TEAL}55` : "none"
                   }}>
                   {v}
                 </div>
-                <div className="text-[10px] mt-1 font-mono" style={{ color: GOLD }}>freq={freqMap?.[v]}</div>
-                {isRoot && <span className="text-[9px] mt-0.5 font-bold" style={{color: ACCENT}}>MIN</span>}
+                <div className="text-[10px] mt-1 font-mono" style={{ color: GOLD }}>f={freqMap?.[v]}</div>
+                {isRoot && <span className="text-[9px] mt-0.5 font-bold" style={{ color: TEAL }}>MIN</span>}
               </div>
             );
           })}
@@ -145,10 +199,11 @@ function HeapViz({ heap, freqMap }) {
 const PRESETS = [
   { label: "LC Example 1", val: "1,1,1,2,2,3 k=2" },
   { label: "LC Example 2", val: "4,1,1,1,1,2,2,3 k=1" },
+  { label: "All Same", val: "5,5,5,5 k=2" },
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("Visualizer");
+  const [tab, setTab] = useState("Problem");
   const [input, setInput] = useState("1,1,1,2,2,3 k=2");
   const [steps, setSteps] = useState([]);
   const [si, setSi] = useState(0);
@@ -164,7 +219,6 @@ export default function App() {
   }, [input]);
 
   const step = steps[si] || null;
-  const stepColor = step?.action === 'result' ? GREEN : step?.action === 'pop' ? RED : ACCENT;
 
   return (
     <div className="min-h-full bg-background text-foreground">
@@ -174,7 +228,7 @@ export default function App() {
         <span className="text-xl">📊</span>
         <h1 className="font-semibold text-base">Top K Frequent Elements</h1>
         <Chip size="sm" color="warning" variant="flat">Medium</Chip>
-        <Chip size="sm" color="secondary" variant="flat">Heap · HashMap</Chip>
+        <Chip size="sm" color="primary" variant="flat">Heap · HashMap</Chip>
       </div>
 
       {/* Tabs */}
@@ -187,74 +241,136 @@ export default function App() {
           size="sm"
         >
 
-          {/* INTUITION */}
+          {/* PROBLEM TAB */}
+          <Tab key="Problem" title="Problem">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+
+              {/* Problem Statement */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+                  <p className="text-sm text-default-600 leading-relaxed mb-4">
+                    Given an integer array <strong>nums</strong> and an integer <strong>k</strong>, return the <strong>k</strong> most frequent elements in the array. You may return the answer in <strong>any order</strong>.
+                  </p>
+                  <div className="flex flex-col gap-2 mb-4">
+                    {[
+                      { sig: "int[] topKFrequent(int[] nums, int k)", desc: "Return k most frequent elements. Array may contain duplicates, k ≥ 1 and k ≤ number of unique elements." },
+                    ].map(({ sig, desc }) => (
+                      <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+                        <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
+                        <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-default-400 mb-2"><strong>Constraints:</strong> O(1) average time per operation required. Follow-up: Can you solve it in less than O(n log n) time?</p>
+                </CardBody>
+              </Card>
+
+              {/* Example */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — nums = [1,1,1,2,2,3], k = 2</p>
+                  <CodeBlock language="text">{`Input:   nums = [1,1,1,2,2,3], k = 2
+Frequencies:  1 → 3 times
+              2 → 2 times
+              3 → 1 time
+
+Output:  [1, 2]
+
+Explanation: 1 appears 3 times (most frequent)
+             2 appears 2 times (second most frequent)
+             Return the top 2 most frequent elements`}</CodeBlock>
+                </CardBody>
+              </Card>
+
+              {/* Another Example */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example 2 — nums = [4,1,1,1,1,2,2,3], k = 1</p>
+                  <CodeBlock language="text">{`Input:   nums = [4,1,1,1,1,2,2,3], k = 1
+Frequencies:  1 → 4 times (most frequent)
+              2 → 2 times
+              4 → 1 time
+              3 → 1 time
+
+Output:  [1]
+
+Explanation: Only return the single most frequent element`}</CodeBlock>
+                </CardBody>
+              </Card>
+            </div>
+          </Tab>
+
+          {/* INTUITION TAB */}
           <Tab key="Intuition" title="Intuition">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+
+              {/* Core Idea */}
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${ACCENT}0d`, borderColor: `${ACCENT}33` }}>
-                      <p className="text-xs font-bold mb-3" style={{ color: ACCENT }}>Use a Min-Heap</p>
+                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                      <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Min-Heap of Size K</p>
                       <p className="text-sm leading-relaxed text-default-500">
-                        Keep a min-heap of size <strong>k</strong> ordered by frequency. The smallest element is always at the root.
+                        Maintain a min-heap of exactly <strong>k</strong> elements, ordered by frequency. Always keep the least frequent at the root.
                       </p>
-                      <p className="text-xs text-default-400 mt-3 font-mono">When heap exceeds k, pop the minimum</p>
+                      <p className="text-xs text-default-400 mt-3 font-mono">Evict min when size exceeds k</p>
                     </div>
                     <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
-                      <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Why Min-Heap?</p>
+                      <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Why This Works</p>
                       <p className="text-sm leading-relaxed text-default-500">
-                        Easy to evict the least frequent element without scanning the entire heap.
+                        By evicting the minimum frequency first, the remaining k elements are guaranteed to be the top k most frequent.
                       </p>
-                      <p className="text-xs text-default-400 mt-3 font-mono">Always O(log k) operations</p>
+                      <p className="text-xs text-default-400 mt-3 font-mono">O(log k) per operation, optimal for large n</p>
                     </div>
                   </div>
                 </CardBody>
               </Card>
 
+              {/* Algorithm Template */}
               <Card>
                 <CardBody>
-                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Algorithm</p>
-                  <CodeBlock>{`// 1. Count frequencies (HashMap)
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Algorithm Template</p>
+                  <CodeBlock>{`// 1. Build frequency map
 Map<Integer, Integer> freq = new HashMap<>();
 for (int num : nums) {
   freq.put(num, freq.getOrDefault(num, 0) + 1);
 }
 
-// 2. Min-heap of size k
+// 2. Min-heap by frequency
 PriorityQueue<Integer> heap = new PriorityQueue<>(
   (a, b) -> freq.get(a) - freq.get(b)
 );
 
-// 3. Add elements, evict min when size > k
+// 3. Maintain k-sized heap, evicting minimum
 for (int num : freq.keySet()) {
   heap.offer(num);
-  if (heap.size() > k) {
-    heap.poll();
-  }
+  if (heap.size() > k) heap.poll();  // Remove smallest freq
 }
 
-// 4. Result is heap contents
-return heap.stream().toArray();`}</CodeBlock>
+// 4. Result
+return new int[heap.size()];  // or heap.toArray()`}</CodeBlock>
                   <div className="mt-3 px-4 py-3 rounded-lg border text-xs leading-relaxed text-default-500"
                     style={{ background: `${GOLD}0d`, borderColor: `${GOLD}44` }}>
-                    <span style={{ color: GOLD }} className="font-bold">💡 Key insight: </span>
-                    Min-heap lets us efficiently maintain the top-k by always removing the weakest candidate.
+                    <span style={{ color: GOLD }} className="font-bold">⚠️ Key insight: </span>
+                    After processing all unique elements, the heap contains exactly the k most frequent. No need to re-sort!
                   </div>
                 </CardBody>
               </Card>
 
+              {/* Complexity */}
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Complexity</p>
                   <div className="flex gap-3">
                     {[
-                      { l: "TIME", v: "O(n log k)", s: "Count + heap ops" },
-                      { l: "SPACE", v: "O(n)", s: "HashMap for frequencies" }
+                      { l: "TIME", v: "O(n log k)", s: "Count O(n) + heap ops O(n log k)" },
+                      { l: "SPACE", v: "O(n)", s: "Frequency map + heap both O(n) worst case" }
                     ].map(({ l, v, s }) => (
                       <div key={l} className="flex-1 rounded-lg p-4 text-center" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
                         <p className="text-xs text-default-500 mb-1">{l}</p>
-                        <p className="font-bold text-base" style={{ color: ACCENT }}>{v}</p>
+                        <p className="font-bold text-base" style={{ color: TEAL }}>{v}</p>
                         <p className="text-xs text-default-400 mt-1">{s}</p>
                       </div>
                     ))}
@@ -264,10 +380,11 @@ return heap.stream().toArray();`}</CodeBlock>
             </div>
           </Tab>
 
-          {/* VISUALIZER */}
+          {/* VISUALIZER TAB */}
           <Tab key="Visualizer" title="Visualizer">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
 
+              {/* Configure */}
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Configure</p>
@@ -285,29 +402,190 @@ return heap.stream().toArray();`}</CodeBlock>
                     placeholder="e.g., 1,1,1,2,2,3 k=2"
                     variant="bordered"
                     size="sm"
-                    classNames={{ label: `!text-[${ACCENT}]` }}
                   />
                 </CardBody>
               </Card>
 
+              {/* Step-by-Step Debugger */}
               {steps.length > 0 && (
                 <Card>
                   <CardBody>
-                    <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">Heap State</p>
-                    <HeapViz heap={step?.heap} freqMap={step?.freqMap} />
+                    <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">Step-by-Step Execution</p>
 
-                    <div className="bg-content2 rounded-lg px-4 py-3 mt-4 text-sm font-mono" style={{ borderLeft: `3px solid ${stepColor}` }}>
+                    {/* Step Pills */}
+                    <div className="flex gap-1.5 mb-4 flex-wrap">
+                      {steps.map((s, i) => (
+                        <button key={i} onClick={() => setSi(i)}
+                          style={{
+                            background: i === si ? TEAL : "var(--viz-surface)",
+                            border: `1px solid ${i === si ? TEAL : "var(--viz-border)"}`,
+                            color: i === si ? "#0b0f0e" : undefined
+                          }}
+                          className="px-2.5 py-1 rounded text-xs cursor-pointer font-mono font-bold transition-all">
+                          #{i + 1}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Status Line */}
+                    <p className="text-xs text-default-500 mb-4 font-mono">
+                      {step?.phase === 'counting' && "Counting frequencies..."}
+                      {step?.phase === 'building' && (
+                        <>
+                          Element: <V color={TEAL}>{step.currentNum}</V> ·
+                          Freq: <V color={GOLD}>{step.freqMap?.[step.currentNum]}</V> ·
+                          Heap Size: <V color={BLUE}>{step.heapSize || 0}</V> ·
+                          Action: <span style={{ color: step.action === 'pop' ? RED : TEAL }} className="font-bold">{step.action === 'pop' ? 'POP' : 'PUSH'}</span>
+                        </>
+                      )}
+                      {step?.phase === 'result' && (
+                        <>
+                          Result: <V color={TEAL}>[{step.result?.join(', ')}]</V>
+                        </>
+                      )}
+                    </p>
+
+                    {/* Live Code Block */}
+                    <div className="rounded-xl overflow-hidden mb-4" style={{ background: "var(--code-bg)", border: "1px solid var(--code-border)" }}>
+                      <CodeLine highlight={step?.action === 'push'} annotation={step?.action === 'push' ? `offer(${step.currentNum})` : ''} annotationColor={TEAL}>
+                        <span style={{ color: "var(--code-muted)" }}>heap.offer(num)</span>
+                      </CodeLine>
+                      <CodeLine highlight={step?.heapSize > 0} annotation={`size = ${step?.heapSize || 0}`} annotationColor={BLUE}>
+                        <span style={{ color: "var(--code-muted)" }}>if (heap.size() {'>'} k)</span>
+                      </CodeLine>
+                      <CodeLine highlight={step?.action === 'pop'} annotation={step?.action === 'pop' ? `poll(${step.currentNum})` : ''} annotationColor={RED}>
+                        <span style={{ color: "var(--code-muted)" }}>  heap.poll()</span>
+                      </CodeLine>
+                    </div>
+
+                    {/* Heap Visualization */}
+                    <div className="rounded-xl p-5 mb-4 text-center"
+                      style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+                      <p className="text-xs text-default-400 mb-3">Heap State (Min at Root)</p>
+                      <HeapViz heap={step?.heap} freqMap={step?.freqMap} />
+                    </div>
+
+                    {/* Step Description */}
+                    <div className="bg-content2 rounded-lg px-4 py-3 mb-4 text-sm font-mono"
+                      style={{ borderLeft: `3px solid ${step?.action === 'result' ? TEAL : step?.action === 'pop' ? RED : GOLD}` }}>
                       {step?.desc}
                     </div>
 
-                    <div className="flex gap-2 justify-between mt-6">
-                      <Button size="sm" onPress={() => setSi(Math.max(0, si - 1))} isDisabled={si === 0}>← Prev</Button>
-                      <span className="text-xs self-center">{si + 1} / {steps.length}</span>
-                      <Button size="sm" onPress={() => setSi(Math.min(steps.length - 1, si + 1))} isDisabled={si === steps.length - 1}>Next →</Button>
+                    {/* Navigation */}
+                    <div className="flex gap-2">
+                      <Button fullWidth variant="bordered" size="sm" isDisabled={si === 0}
+                        onPress={() => setSi(i => Math.max(0, i - 1))}>← Prev</Button>
+                      <Button fullWidth color="primary" size="sm" isDisabled={si === steps.length - 1}
+                        onPress={() => setSi(i => Math.min(steps.length - 1, i + 1))}>Next →</Button>
                     </div>
                   </CardBody>
                 </Card>
               )}
+
+              {/* Final State Card */}
+              {step?.phase === 'result' && (
+                <Card>
+                  <CardBody>
+                    <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">Final Result</p>
+                    <div className="text-center py-6" style={{ background: "var(--viz-surface)", borderRadius: "0.75rem", border: "1px solid var(--viz-border)" }}>
+                      <p className="text-xs text-default-400 mb-3">Top K Frequent Elements</p>
+                      <p className="font-bold text-2xl" style={{ color: TEAL }}>[{step.result?.join(', ')}]</p>
+                      <p className="text-xs text-default-400 mt-3">Frequencies: {step.result?.map(n => `${n}→${step.freqMap?.[n]}`).join(', ')}</p>
+                    </div>
+                  </CardBody>
+                </Card>
+              )}
+            </div>
+          </Tab>
+
+          {/* CODE TAB */}
+          <Tab key="Code" title="Code">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+
+              {/* Full Java Solution */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Full Java Solution</p>
+                  <CodeBlock>{`import java.util.*;
+
+class Solution {
+  public int[] topKFrequent(int[] nums, int k) {
+    // 1. Count frequencies
+    Map<Integer, Integer> freq = new HashMap<>();
+    for (int num : nums) {
+      freq.put(num, freq.getOrDefault(num, 0) + 1);
+    }
+
+    // 2. Min-heap by frequency (size k)
+    PriorityQueue<Integer> heap = new PriorityQueue<>(
+      (a, b) -> freq.get(a) - freq.get(b)
+    );
+
+    // 3. Add to heap, maintain size k
+    for (int num : freq.keySet()) {
+      heap.offer(num);
+      if (heap.size() > k) {
+        heap.poll();  // Remove least frequent
+      }
+    }
+
+    // 4. Convert heap to array
+    int[] result = new int[k];
+    int i = k - 1;
+    while (!heap.isEmpty()) {
+      result[i--] = heap.poll();
+    }
+    return result;
+  }
+}`}</CodeBlock>
+                </CardBody>
+              </Card>
+
+              {/* Line-by-Line Breakdown */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Line-by-Line Breakdown</p>
+                  <div className="flex flex-col divide-y divide-divider">
+                    {[
+                      { line: "Map<Integer, Integer> freq = new HashMap<>();\nfor (int num : nums) freq.put(num, freq.getOrDefault(num, 0) + 1);", exp: "Count occurrences of each unique number in a hash map. O(n) time." },
+                      { line: "PriorityQueue<Integer> heap = new PriorityQueue<>((a, b) -> freq.get(a) - freq.get(b));", exp: "Create a min-heap ordered by frequency. Root is always the least frequent element." },
+                      { line: "for (int num : freq.keySet()) { heap.offer(num); }", exp: "Iterate through all unique numbers (at most n). Add each to the heap." },
+                      { line: "if (heap.size() > k) heap.poll();", exp: "If heap exceeds k elements, remove the smallest frequency. Keeps only top k." },
+                      { line: "int[] result = new int[k]; int i = k - 1; while (!heap.isEmpty()) result[i--] = heap.poll();", exp: "Extract all k elements from heap into result array. Order doesn't matter for final answer." },
+                    ].map(({ line, exp }) => (
+                      <div key={line} className="py-3 flex gap-3 items-start">
+                        <code className="text-[11px] px-2 py-1 rounded flex-shrink-0 font-mono whitespace-pre-wrap"
+                          style={{ background: "var(--viz-surface)", color: TEAL, border: "1px solid var(--viz-border)" }}>
+                          {line}
+                        </code>
+                        <span className="text-sm text-default-500 leading-relaxed">{exp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Pattern Memorization */}
+              <Card>
+                <CardBody>
+                  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Pattern Memorization</p>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { icon: "📍", color: TEAL, tip: "Min-heap of size K maintains top-k most frequent in O(n log k)." },
+                      { icon: "⚠️", color: GOLD, tip: "Use frequency map FIRST, then heap. Don't try to heap the raw array." },
+                      { icon: "🔄", color: BLUE, tip: "When heap.size() > k, always poll() to evict the minimum." },
+                      { icon: "💡", color: TEAL, tip: "Bonus: For very large k, use bucket sort instead (O(n) time)." },
+                      { icon: "🎯", color: BLUE, tip: "Related: Kth Largest Element, Top K Frequent Words, Reorganize String." },
+                    ].map(({ icon, color, tip }) => (
+                      <div key={tip} className="flex gap-3 rounded-lg p-3 items-start"
+                        style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)", borderLeft: `3px solid ${color}` }}>
+                        <span className="text-base flex-shrink-0">{icon}</span>
+                        <span className="text-sm text-default-500 leading-relaxed">{tip}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
             </div>
           </Tab>
 

@@ -28,13 +28,55 @@ export default function App() { ... }
 
 ---
 
-## Required Tabs — ALL THREE must be present
+## Required Tabs — ALL FOUR must be present
 
 ```
-Intuition | Visualizer | Code
+Problem | Intuition | Visualizer | Code
 ```
 
-Missing any tab = incomplete artifact. `two-sum-ii.jsx` is the example of what NOT to do (missing Code tab, no line-by-line, no pattern tips).
+Missing any tab = incomplete artifact. Every artifact must start with a Problem tab that explains the requirements.
+
+---
+
+## Tab 0 — Problem
+
+Must contain **in this order**:
+
+### 1. Problem Statement Card
+Clear explanation of what needs to be solved, with constraints and expectations.
+
+```jsx
+<Card><CardBody>
+  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+  <p className="text-sm text-default-600 leading-relaxed mb-4">
+    Description of the problem with key requirements highlighted.
+  </p>
+  <div className="flex flex-col gap-2">
+    {[
+      { sig: "method signature", desc: "What it does and constraints" },
+    ].map(({ sig, desc }) => (
+      <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+        <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
+        <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
+      </div>
+    ))}
+  </div>
+</CardBody></Card>
+```
+
+### 2. Example Walkthrough Card
+A step-by-step example showing input, process, and output using `<CodeBlock>` with monospace text formatting.
+
+```jsx
+<Card><CardBody>
+  <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — [specific scenario]</p>
+  <CodeBlock language="text">{`Input: ...
+Expected output: ...
+Step-by-step breakdown...`}</CodeBlock>
+</CardBody></Card>
+```
+
+---
 
 ---
 
@@ -349,7 +391,8 @@ Each step object should contain everything the UI needs for that frame — no re
 Before considering an artifact done:
 
 - [ ] `export const difficulty` is set
-- [ ] All 3 tabs present: Intuition, Visualizer, Code
+- [ ] All 4 tabs present: Problem, Intuition, Visualizer, Code
+- [ ] Problem: statement card + example walkthrough with input/output
 - [ ] Intuition: dual-panel core idea, algorithm template, key insight callout, complexity
 - [ ] Visualizer: presets, inputs, step pills, status line, live code block, visual panel, prev/next, final state
 - [ ] Code: full Java solution, line-by-line breakdown, pattern tips
