@@ -1,4 +1,4 @@
-import { useState, Suspense, useEffect } from 'react'
+import { useState, Suspense, useEffect, useCallback } from 'react'
 import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
@@ -76,6 +76,14 @@ function BookIcon() {
   )
 }
 
+function HamburgerIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  )
+}
+
 export default function App() {
   const [isDark, setIsDark] = useState(false)
   const [selected, setSelected] = useState(null)
@@ -83,16 +91,18 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState({})
   const [search, setSearch] = useState('')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
 
   async function openArtifact(artifact) {
-    if (selected?.path === artifact.path) return
+    if (selected?.path === artifact.path) { setSidebarOpen(false); return }
     setSelected(artifact)
     setActiveComponent(null)
     setLoading(true)
+    setSidebarOpen(false)
     try {
       const mod = await artifact.loader()
       setActiveComponent(() => mod.default)
@@ -123,20 +133,28 @@ const categoryOrder = Object.keys(grouped).sort()
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
 
       {/* ── Header ─────────────────────────────────────────────────── */}
-      <header className="flex items-center justify-between px-5 py-3 border-b border-divider bg-content1 flex-shrink-0">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 flex-shrink-0 gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+          {/* Hamburger — mobile only */}
+          <button
+            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-content2 text-default-500 transition-colors"
+            onClick={() => setSidebarOpen(o => !o)}
+            aria-label="Toggle navigation"
+          >
+            <HamburgerIcon />
+          </button>
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
             <BookIcon />
           </div>
           <div>
             <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Artifact Archive</h1>
-            <p className="text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
+            <p className="hidden sm:block text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Chip size="sm" variant="flat" color="primary">{artifactList.length} Artifacts</Chip>
-          <Chip size="sm" variant="flat" color="default">{categoryOrder.length} Categories</Chip>
-          <div className="flex items-center gap-2 text-default-400">
+        <div className="flex items-center gap-2">
+          <Chip size="sm" variant="flat" color="primary" className="hidden sm:flex">{artifactList.length} Artifacts</Chip>
+          <Chip size="sm" variant="flat" color="default" className="hidden sm:flex">{categoryOrder.length} Categories</Chip>
+          <div className="flex items-center gap-1.5 text-default-400">
             <SunIcon />
             <Switch
               size="sm"
@@ -150,10 +168,23 @@ const categoryOrder = Object.keys(grouped).sort()
       </header>
 
       {/* ── Body ───────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+
+        {/* ── Mobile overlay backdrop ──────────────────────────────── */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-20 bg-black/40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
-        <aside className="w-64 flex-shrink-0 border-r border-divider bg-content1 flex flex-col">
+        <aside className={`
+          fixed md:relative inset-y-0 left-0 z-30
+          w-64 flex-shrink-0 border-r border-divider bg-content1 flex flex-col
+          transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
           <div className="px-4 pt-2.5 pb-2 border-b border-divider flex-shrink-0 flex flex-col gap-2">
             <p className="text-xs font-semibold text-default-400 uppercase tracking-wider">Navigation</p>
             <Input

@@ -400,3 +400,7 @@ Before considering an artifact done:
 - [ ] CSS variables used for all theme-dependent colors (backgrounds, borders, text)
 - [ ] Steps array simulated once in a pure function, not recomputed on render
 - [ ] Each CodeLine in the live debugger has both a highlighted state AND an annotation showing the live value
+- [ ] SVGs use `width="100%"` with a `viewBox` — never hardcode a fixed pixel width on `<svg>`
+- [ ] Visualizers that grow wide (Gantt, tables) are wrapped in `overflow-x-auto`
+- [ ] Two-column flex panels use `flex-wrap` so they stack on mobile
+- [ ] No fixed `min-w` values wider than 160px on flex children
