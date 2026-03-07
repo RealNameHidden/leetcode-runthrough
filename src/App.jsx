@@ -97,12 +97,22 @@ export default function App() {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
 
+  // Restore last opened artifact on mount
+  useEffect(() => {
+    const lastPath = localStorage.getItem('lastArtifactPath')
+    if (lastPath) {
+      const artifact = artifactList.find(a => a.path === lastPath)
+      if (artifact) openArtifact(artifact)
+    }
+  }, [])
+
   async function openArtifact(artifact) {
     if (selected?.path === artifact.path) { setSidebarOpen(false); return }
     setSelected(artifact)
     setActiveComponent(null)
     setLoading(true)
     setSidebarOpen(false)
+    localStorage.setItem('lastArtifactPath', artifact.path)
     try {
       const mod = await artifact.loader()
       setActiveComponent(() => mod.default)
