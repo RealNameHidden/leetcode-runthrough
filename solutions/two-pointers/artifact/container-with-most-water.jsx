@@ -1,5 +1,6 @@
 export const difficulty = 'Medium'
 import { useState, useEffect, useRef } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -208,22 +209,20 @@ export default function App(){
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`public int maxArea(int[] height) {
-    int `}<span style={{color:POINTER}}>l = 0, r = height.length - 1</span>{`;
+                <CodeBlock>{`public int maxArea(int[] height) {
+    int l = 0, r = height.length - 1;
     int best = 0;
 
     while (l < r) {
         int area = Math.min(height[l], height[r]) * (r - l);
         best = Math.max(best, area);
 
-        `}<span style={{color:"var(--code-muted)"}}>// move the shorter pointer inward</span>{`
-        if (height[l] < height[r]) `}<span style={{color:POINTER}}>l++</span>{`;
-        else                        `}<span style={{color:POINTER}}>r--</span>{`;
+        // move the shorter pointer inward
+        if (height[l] < height[r]) l++;
+        else                        r--;
     }
     return best;
-}`}
-                </pre>
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Insights</p>

@@ -1,5 +1,6 @@
 export const difficulty = 'Hard'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -136,10 +137,8 @@ export default function App(){
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example</p>
-                <pre className="rounded-lg p-4 text-xs leading-8" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`Input:  [0,1,0,2,1,0,1,3,2,1,2,1]
-Output: `}<span style={{color:GREEN,fontWeight:700}}>6</span>
-                </pre>
+                <CodeBlock language="text">{`Input:  [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6`}</CodeBlock>
               </CardBody></Card>
             </div>
           </Tab>
@@ -245,30 +244,28 @@ Output: `}<span style={{color:GREEN,fontWeight:700}}>6</span>
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`public int trap(int[] height) {
-    int `}<span style={{color:LEFT}}>left = 0</span>{`, `}<span style={{color:RIGHT}}>right = height.length - 1</span>{`;
-    int `}<span style={{color:LEFT}}>leftMax = 0</span>{`, `}<span style={{color:RIGHT}}>rightMax = 0</span>{`;
+                <CodeBlock>{`public int trap(int[] height) {
+    int left = 0, right = height.length - 1;
+    int leftMax = 0, rightMax = 0;
     int total = 0;
 
     while (left < right) {
         if (height[left] <= height[right]) {
-            if (height[left] >= `}<span style={{color:LEFT}}>leftMax</span>{`)
-                `}<span style={{color:LEFT}}>leftMax</span>{` = height[left];  `}<span style={{color:"var(--code-muted)"}}>// new wall</span>{`
+            if (height[left] >= leftMax)
+                leftMax = height[left];  // new wall
             else
-                total += `}<span style={{color:LEFT}}>leftMax</span>{` - height[left]; `}<span style={{color:"var(--code-muted)"}}>// trap water</span>{`
-            `}<span style={{color:LEFT}}>left++</span>{`;
+                total += leftMax - height[left]; // trap water
+            left++;
         } else {
-            if (height[right] >= `}<span style={{color:RIGHT}}>rightMax</span>{`)
-                `}<span style={{color:RIGHT}}>rightMax</span>{` = height[right];
+            if (height[right] >= rightMax)
+                rightMax = height[right];
             else
-                total += `}<span style={{color:RIGHT}}>rightMax</span>{` - height[right];
-            `}<span style={{color:RIGHT}}>right--</span>{`;
+                total += rightMax - height[right];
+            right--;
         }
     }
     return total;
-}`}
-                </pre>
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Insights</p>

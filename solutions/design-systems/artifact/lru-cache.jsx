@@ -1,5 +1,6 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -182,17 +183,15 @@ export default function App(){
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — capacity = 2</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`put(1,1)  → cache: [1=1]
+                <CodeBlock language="text">{`put(1,1)  → cache: [1=1]
 put(2,2)  → cache: [2=2, 1=1]
-get(1)    → `}<span style={{color:GREEN}}>1</span>{`   cache: [1=1, 2=2]  (1 promoted)
+get(1)    → 1   cache: [1=1, 2=2]  (1 promoted)
 put(3,3)  → EVICT 2   cache: [3=3, 1=1]
-get(2)    → `}<span style={{color:RED}}>-1</span>{`  (evicted)
+get(2)    → -1  (evicted)
 put(4,4)  → EVICT 1   cache: [4=4, 3=3]
-get(1)    → `}<span style={{color:RED}}>-1</span>{`
-get(3)    → `}<span style={{color:GREEN}}>3</span>{`
-get(4)    → `}<span style={{color:GREEN}}>4</span>
-                </pre>
+get(1)    → -1
+get(3)    → 3
+get(4)    → 4`}</CodeBlock>
               </CardBody></Card>
             </div>
           </Tab>
@@ -316,8 +315,7 @@ get(4)    → `}<span style={{color:GREEN}}>4</span>
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java — HashMap + Doubly Linked List</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`class LRUCache {
+                <CodeBlock>{`class LRUCache {
     class Node { int key, val; Node prev, next;
         Node(int k, int v) { key=k; val=v; } }
 
@@ -333,7 +331,7 @@ get(4)    → `}<span style={{color:GREEN}}>4</span>
     public int get(int key) {
         if (!map.containsKey(key)) return -1;
         Node node = map.get(key);
-        remove(node); insertFront(node);  `}<span style={{color:ACCENT}}>// move to MRU</span>{`
+        remove(node); insertFront(node);  // move to MRU
         return node.val;
     }
 
@@ -343,7 +341,7 @@ get(4)    → `}<span style={{color:GREEN}}>4</span>
         insertFront(node); map.put(key, node);
         if (map.size() > capacity) {
             Node lru = tail.prev;
-            remove(lru); map.remove(lru.key);  `}<span style={{color:AMBER}}>// node.key needed!</span>{`
+            remove(lru); map.remove(lru.key);  // node.key needed!
         }
     }
 
@@ -354,8 +352,7 @@ get(4)    → `}<span style={{color:GREEN}}>4</span>
         n.next = head.next; n.prev = head;
         head.next.prev = n; head.next = n;
     }
-}`}
-                </pre>
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Insights</p>

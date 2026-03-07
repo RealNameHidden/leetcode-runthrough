@@ -12,11 +12,14 @@
     "@heroui/react": "^2.8.9",
     "@heroui/styles": "^3.0.0-beta.8",
     "@tailwindcss/vite": "^4.2.1",
+    "canvas-confetti": "^1.9.4",
     "framer-motion": "^12.35.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-syntax-highlighter": "^16.1.1"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.27",
     "gh-pages": "^6.3.0",

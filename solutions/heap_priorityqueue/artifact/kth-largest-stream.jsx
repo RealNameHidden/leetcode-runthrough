@@ -1,5 +1,6 @@
 export const difficulty = 'Easy'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -201,25 +202,23 @@ export default function App(){
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`class KthLargest {
-    private PriorityQueue<Integer> `}<span style={{color:ACCENT}}>minHeap</span>{`;
+                <CodeBlock>{`class KthLargest {
+    private PriorityQueue<Integer> minHeap;
     private int k;
 
     public KthLargest(int k, int[] nums) {
         this.k = k;
-        `}<span style={{color:ACCENT}}>minHeap</span>{` = new PriorityQueue<>();
-        for (int n : nums) add(n);  `}<span style={{color:"var(--code-muted)"}}>// reuse add() logic</span>{`
+        minHeap = new PriorityQueue<>();
+        for (int n : nums) add(n);  // reuse add() logic
     }
 
     public int add(int val) {
-        `}<span style={{color:ACCENT}}>minHeap</span>{`.offer(val);
-        if (`}<span style={{color:ACCENT}}>minHeap</span>{`.size() > k)
-            `}<span style={{color:ACCENT}}>minHeap</span>{`.poll();  `}<span style={{color:"var(--code-muted)"}}>// remove smallest</span>{`
-        return `}<span style={{color:GREEN}}>`minHeap.peek()`</span>{`;  `}<span style={{color:"var(--code-muted)"}}>// root = kth largest</span>{`
+        minHeap.offer(val);
+        if (minHeap.size() > k)
+            minHeap.poll();  // remove smallest
+        return minHeap.peek();  // root = kth largest
     }
-}`}
-                </pre>
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Pattern Cheat Sheet</p>

@@ -1,5 +1,6 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -162,16 +163,14 @@ export default function App(){
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`Input:  [3,9,20,null,null,15,7]
+                <CodeBlock language="text">{`Input:  [3,9,20,null,null,15,7]
         3          ← level 0
        / \\
       9   20       ← level 1
          /  \\
         15   7     ← level 2
 
-Output: `}<span style={{color:GREEN,fontWeight:700}}>[[3],[9,20],[15,7]]</span>
-                </pre>
+Output: [[3],[9,20],[15,7]]`}</CodeBlock>
               </CardBody></Card>
             </div>
           </Tab>
@@ -183,15 +182,13 @@ Output: `}<span style={{color:GREEN,fontWeight:700}}>[[3],[9,20],[15,7]]</span>
                 <p className="text-sm text-default-500 leading-relaxed mb-3">
                   Before processing a level, <strong style={{color:YELLOW}}>snapshot queue.size()</strong>. That number is exactly how many nodes are on the current level.
                 </p>
-                <pre className="rounded-lg p-4 text-xs leading-7 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`// Queue entering level 1: [9, 20]
-int `}<span style={{color:CYAN}}>levelSize</span>{` = queue.size(); // = 2
-for (int i = 0; i < `}<span style={{color:CYAN}}>levelSize</span>{`; i++) {
+                <CodeBlock language="java">{`// Queue entering level 1: [9, 20]
+int levelSize = queue.size(); // = 2
+for (int i = 0; i < levelSize; i++) {
     poll 9  → no children
     poll 20 → enqueue 15, 7
 }
-// After: queue = [15, 7]  ← level 2`}
-                </pre>
+// After: queue = [15, 7]  ← level 2`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">⚡ Complexity</p>
@@ -299,29 +296,27 @@ for (int i = 0; i < `}<span style={{color:CYAN}}>levelSize</span>{`; i++) {
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`public List<List<Integer>> levelOrder(TreeNode root) {
+                <CodeBlock>{`public List<List<Integer>> levelOrder(TreeNode root) {
     List<List<Integer>> result = new ArrayList<>();
-    `}<span style={{color:YELLOW}}>if (root == null) return result;</span>{`
+    if (root == null) return result;
 
     Queue<TreeNode> queue = new LinkedList<>();
     queue.offer(root);
 
     while (!queue.isEmpty()) {
-        `}<span style={{color:CYAN}}>int levelSize = queue.size();</span>{` // THE KEY LINE
+        int levelSize = queue.size(); // THE KEY LINE
         List<Integer> level = new ArrayList<>();
 
         for (int i = 0; i < levelSize; i++) {
             TreeNode node = queue.poll();
             level.add(node.val);
-            `}<span style={{color:INDIGO}}>if (node.left  != null) queue.offer(node.left);
-            if (node.right != null) queue.offer(node.right);</span>{`
+            if (node.left  != null) queue.offer(node.left);
+            if (node.right != null) queue.offer(node.right);
         }
         result.add(level);
     }
     return result;
-}`}
-                </pre>
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Pattern Cheat Sheet</p>

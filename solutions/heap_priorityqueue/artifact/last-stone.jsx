@@ -1,5 +1,6 @@
 export const difficulty = 'Easy'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -225,23 +226,21 @@ export default function App(){
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
-                <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{background:"var(--code-bg)",color:"var(--code-text)"}}>
-{`public int lastStoneWeight(int[] stones) {
-    PriorityQueue<Integer> `}<span style={{color:ACCENT}}>maxHeap</span>{` =
+                <CodeBlock>{`public int lastStoneWeight(int[] stones) {
+    PriorityQueue<Integer> maxHeap =
         new PriorityQueue<>(Collections.reverseOrder());
 
-    for (int s : stones) `}<span style={{color:ACCENT}}>maxHeap</span>{`.offer(s);
+    for (int s : stones) maxHeap.offer(s);
 
-    while (`}<span style={{color:ACCENT}}>maxHeap</span>{`.size() > 1) {
-        int y = `}<span style={{color:ACCENT}}>maxHeap</span>{`.poll();  `}<span style={{color:"var(--code-muted)"}}>// heaviest</span>{`
-        int x = `}<span style={{color:ACCENT}}>maxHeap</span>{`.poll();  `}<span style={{color:"var(--code-muted)"}}>// 2nd heaviest</span>{`
+    while (maxHeap.size() > 1) {
+        int y = maxHeap.poll();  // heaviest
+        int x = maxHeap.poll();  // 2nd heaviest
         if (x != y)
-            `}<span style={{color:ACCENT}}>maxHeap</span>{`.offer(y - x);
+            maxHeap.offer(y - x);
     }
 
-    return `}<span style={{color:ACCENT}}>maxHeap</span>{`.isEmpty() ? 0 : `}<span style={{color:GREEN}}>`maxHeap.peek()`</span>{`;
-}`}
-                </pre>
+    return maxHeap.isEmpty() ? 0 : maxHeap.peek();
+}`}</CodeBlock>
               </CardBody></Card>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Points</p>

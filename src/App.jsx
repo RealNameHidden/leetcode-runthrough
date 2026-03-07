@@ -1,5 +1,7 @@
 import { useState, Suspense, useEffect } from 'react'
 import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
+import { motion } from 'framer-motion'
+import confetti from 'canvas-confetti'
 
 // Auto-discover all artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -33,6 +35,18 @@ const grouped = artifactList.reduce((acc, a) => {
 function formatCategory(cat) {
   return cat.replace(/_/g, ' & ').replace(/-/g, ' ')
     .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+function fireConfetti() {
+  const count = 180
+  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 }
+  const randomInRange = (min, max) => Math.random() * (max - min) + min
+  confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
+  confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
+  setTimeout(() => {
+    confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
+    confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
+  }, 150)
 }
 
 function SunIcon() {
@@ -93,7 +107,7 @@ export default function App() {
     setExpanded(prev => ({ ...prev, [cat]: !prev[cat] }))
   }
 
-  const categoryOrder = Object.keys(grouped).sort()
+const categoryOrder = Object.keys(grouped).sort()
 
   const query = search.trim().toLowerCase()
   const filteredGrouped = query
@@ -175,12 +189,14 @@ export default function App() {
                   {isOpen && (
                     <div className="ml-3 mt-0.5 flex flex-col gap-0.5 border-l-2 border-divider pl-3 pb-1">
                       {filteredGrouped[cat].map(artifact => (
-                        <button
+                        <motion.button
                           key={artifact.path}
                           onClick={() => openArtifact(artifact)}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                             selected?.path === artifact.path
-                              ? 'bg-primary text-primary-foreground font-medium shadow-sm'
+                              ? 'bg-purple-100 text-purple-800 font-medium shadow-sm'
                               : 'text-default-500 hover:bg-content2 hover:text-foreground'
                           }`}
                         >
@@ -192,7 +208,7 @@ export default function App() {
                               </span>
                             )}
                           </span>
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
                   )}
@@ -230,6 +246,14 @@ export default function App() {
                   <p className="font-semibold text-sm text-foreground truncate">{selected.name}</p>
                   <p className="text-xs text-default-400">{formatCategory(selected.category)}</p>
                 </div>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={fireConfetti}
+                    className="font-medium bg-purple-50 text-purple-400 hover:bg-purple-100 hover:text-purple-600 active:scale-95 transition-colors"
+                  >
+                    Understood!
+                  </Button>
                 <Button
                   size="sm"
                   variant="light"

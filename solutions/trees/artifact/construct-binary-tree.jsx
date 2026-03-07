@@ -1,5 +1,6 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
+import CodeBlock from '../../../src/CodeBlock';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -209,18 +210,16 @@ export default function App() {
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Recursive Template</p>
-                  <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{ background:"var(--code-bg)", color:"var(--code-text)" }}>
-{`build(inStart, inEnd) {
-  if (inStart > inEnd) return null;   `}<span style={{color:"var(--code-muted)"}}>// empty window</span>{`
+                  <CodeBlock>{`build(inStart, inEnd) {
+  if (inStart > inEnd) return null;   // empty window
 
-  int rootVal = pre[`}<span style={{color:TEAL}}>nodePointer++</span>{`];  `}<span style={{color:"var(--code-muted)"}}>// take off the tape</span>{`
-  int mid = map.get(rootVal);          `}<span style={{color:"var(--code-muted)"}}>// O(1) lookup</span>{`
+  int rootVal = pre[nodePointer++];  // take off the tape
+  int mid = map.get(rootVal);          // O(1) lookup
 
   root.left  = build(inStart, mid - 1);
   root.right = build(mid + 1, inEnd);
   return root;
-}`}
-                  </pre>
+}`}</CodeBlock>
                   <div className="mt-3 px-4 py-3 rounded-lg border text-xs leading-relaxed text-default-500"
                     style={{ background:`${GOLD}0d`, borderColor:`${GOLD}44` }}>
                     <span style={{color:GOLD}} className="font-bold">⚠️ Order matters: </span>
@@ -417,30 +416,28 @@ export default function App() {
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java — nodePointer Approach</p>
-                  <pre className="rounded-lg p-4 text-xs leading-8 overflow-x-auto" style={{ background:"var(--code-bg)", color:"var(--code-text)" }}>
-{`class Solution {
-    int `}<span style={{color:TEAL}}>nodePointer</span>{` = 0;
-    Map<Integer,Integer> `}<span style={{color:GOLD}}>map</span>{` = new HashMap<>();
+                  <CodeBlock>{`class Solution {
+    int nodePointer = 0;
+    Map<Integer,Integer> map = new HashMap<>();
 
     public TreeNode buildTree(int[] preorder, int[] inorder) {
         for (int i = 0; i < inorder.length; i++)
-            `}<span style={{color:GOLD}}>map</span>{`.put(inorder[i], i);
+            map.put(inorder[i], i);
         return build(preorder, 0, preorder.length - 1);
     }
 
     private TreeNode build(int[] pre, int inStart, int inEnd) {
         if (inStart > inEnd) return null;
 
-        int rootVal = pre[`}<span style={{color:TEAL}}>nodePointer++</span>{`];
+        int rootVal = pre[nodePointer++];
         TreeNode root = new TreeNode(rootVal);
-        int mid = `}<span style={{color:GOLD}}>map</span>{`.get(rootVal);
+        int mid = map.get(rootVal);
 
         root.left  = build(pre, inStart, mid - 1);
         root.right = build(pre, mid + 1, inEnd);
         return root;
     }
-}`}
-                  </pre>
+}`}</CodeBlock>
                 </CardBody>
               </Card>
 
