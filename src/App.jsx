@@ -245,7 +245,7 @@ const categoryOrder = Object.keys(grouped).sort()
                           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                           className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                             selected?.path === artifact.path
-                              ? 'bg-purple-100 text-purple-800 font-medium shadow-sm'
+                              ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 font-medium shadow-sm dark:shadow-purple-900/50'
                               : 'text-default-500 hover:bg-content2 hover:text-foreground'
                           }`}
                         >
