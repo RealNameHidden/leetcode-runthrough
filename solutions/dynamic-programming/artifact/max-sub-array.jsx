@@ -110,7 +110,7 @@ export default function App() {
                 <div className="flex flex-col gap-2">
                   {[{ sig:"int maxSubArray(int[] nums)", desc:"Return the maximum subarray sum. The array has at least one element." }].map(({ sig, desc }) => (
                     <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background:"var(--viz-surface)", border:"1px solid var(--viz-border)" }}>
-                      <code className="text-xs font-mono flex-shrink-0" style={{ color:TEAL }}>{sig}</code>
+                      <code className="text-xs font-mono min-w-0 break-all" style={{ color:TEAL }}>{sig}</code>
                       <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
                     </div>
                   ))}

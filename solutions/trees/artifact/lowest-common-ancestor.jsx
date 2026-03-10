@@ -202,7 +202,7 @@ export default function App() {
                     { sig: "TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)", desc: "Return the LCA node. All values are unique. p and q always exist in the tree." },
                   ].map(({ sig, desc }) => (
                     <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
-                      <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
+                      <code className="text-xs font-mono min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
                       <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
                     </div>
                   ))}

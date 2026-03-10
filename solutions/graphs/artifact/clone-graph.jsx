@@ -183,7 +183,7 @@ export default function App() {
                     { sig: "Node cloneGraph(Node node)", desc: "Return deep copy of graph. Return null if node is null. Number of nodes: 0–100, values are unique 1–100." },
                   ].map(({ sig, desc }) => (
                     <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
-                      <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
+                      <code className="text-xs font-mono min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
                       <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
                     </div>
                   ))}

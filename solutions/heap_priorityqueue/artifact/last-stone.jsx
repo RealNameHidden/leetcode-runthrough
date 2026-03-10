@@ -228,7 +228,7 @@ export default function App() {
                       { sig: "int lastStoneWeight(int[] stones)", desc: "Return the weight of the last remaining stone, or 0 if all are destroyed." },
                     ].map(({ sig, desc }) => (
                       <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
-                        <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
+                        <code className="text-xs font-mono min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
                         <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
                       </div>
                     ))}
@@ -500,7 +500,7 @@ return maxHeap.isEmpty() ? 0 : maxHeap.peek();`}</CodeBlock>
                       { line: "return maxHeap.isEmpty() ? 0 : maxHeap.peek();", exp: "If heap empty, all stones destroyed (return 0). Otherwise, return the last stone." },
                     ].map(({ line, exp }) => (
                       <div key={line} className="py-3 flex gap-3 items-start">
-                        <code className="text-[11px] px-2 py-1 rounded flex-shrink-0 font-mono whitespace-pre-wrap"
+                        <code className="text-[11px] px-2 py-1 rounded min-w-0 font-mono whitespace-pre-wrap break-all"
                           style={{ background: "var(--viz-surface)", color: TEAL, border: "1px solid var(--viz-border)" }}>
                           {line}
                         </code>

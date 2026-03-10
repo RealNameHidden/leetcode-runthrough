@@ -299,7 +299,7 @@ const categoryOrder = Object.keys(grouped).sort()
                     size="sm"
                     variant="flat"
                     onPress={fireConfetti}
-                    className="font-medium bg-purple-50 text-purple-400 hover:bg-purple-100 hover:text-purple-600 active:scale-95 transition-colors"
+                    className="font-medium bg-purple-50 dark:bg-purple-500/20 text-purple-500 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/30 hover:text-purple-700 dark:hover:text-purple-200 active:scale-95 transition-colors"
                   >
                     Understood!
                   </Button>
