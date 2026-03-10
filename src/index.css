@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --viz-bg: #f8fafc;
-  --viz-surface: #f1f5f9;
-  --viz-border: #e2e8f0;
-  --viz-node-bg: #ffffff;
-  --viz-text: #1e293b;
-  --viz-muted: #64748b;
+  --viz-bg: #f5f0e8;
+  --viz-surface: #ede8dc;
+  --viz-border: #d6cfc0;
+  --viz-node-bg: #faf7f2;
+  --viz-text: #2c2416;
+  --viz-muted: #7a6e5f;
   --code-bg: #0d1117;
   --code-border: #30363d;
   --code-text: #e6edf3;
@@ -27,6 +27,23 @@
 html, body, #root {
   height: 100%;
   overflow: hidden;
+}
+
+/* ── Light mode: old-paper cream background ───────────────────────── */
+body {
+  background: #f5f0e8;
+}
+
+html:not(.dark) .bg-background {
+  background: #f5f0e8 !important;
+}
+
+html:not(.dark) .bg-content1 {
+  background: #faf7f2 !important;
+}
+
+html:not(.dark) .bg-content2 {
+  background: #f0ebe0 !important;
 }
 
 /* ── Dark mode: deep purple-to-blue-black gradient background ─────── */
