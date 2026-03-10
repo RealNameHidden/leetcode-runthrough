@@ -1,4 +1,4 @@
-import { useState, Suspense, useEffect, useCallback } from 'react'
+import { useState, Suspense, useEffect, useCallback, useRef } from 'react'
 import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
@@ -92,10 +92,18 @@ export default function App() {
   const [expanded, setExpanded] = useState({})
   const [search, setSearch] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [headerHidden, setHeaderHidden] = useState(false)
+  const lastScrollY = useRef(0)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
+
+  function handleContentScroll(e) {
+    const y = e.currentTarget.scrollTop
+    setHeaderHidden(y > lastScrollY.current && y > 40)
+    lastScrollY.current = y
+  }
 
   // Restore last opened artifact on mount
   useEffect(() => {
@@ -143,7 +151,7 @@ const categoryOrder = Object.keys(grouped).sort()
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
 
       {/* ── Header ─────────────────────────────────────────────────── */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 flex-shrink-0 gap-2">
+      <header className={`flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 flex-shrink-0 gap-2 transition-transform duration-300 md:translate-y-0 ${headerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="flex items-center gap-3">
           {/* Hamburger — mobile only */}
           <button
@@ -304,7 +312,7 @@ const categoryOrder = Object.keys(grouped).sort()
                   Close ✕
                 </Button>
               </div>
-              <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto pb-20 md:pb-0" onScroll={handleContentScroll}>
                 <Suspense fallback={
                   <div className="flex items-center justify-center p-12">
                     <Spinner label="Rendering..." />
