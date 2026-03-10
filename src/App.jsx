@@ -150,8 +150,14 @@ const categoryOrder = Object.keys(grouped).sort()
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
 
-      {/* ── Header ─────────────────────────────────────────────────── */}
-      <header className={`flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 flex-shrink-0 gap-2 transition-transform duration-300 md:translate-y-0 ${headerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
+      {/* ── Header — fixed overlay on mobile, static on desktop ────── */}
+      <header className={`
+        fixed top-0 left-0 right-0 z-50
+        md:static md:z-auto
+        flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 gap-2
+        transition-transform duration-300 md:translate-y-0
+        ${headerHidden ? '-translate-y-full' : 'translate-y-0'}
+      `}>
         <div className="flex items-center gap-3">
           {/* Hamburger — mobile only */}
           <button
@@ -185,8 +191,8 @@ const categoryOrder = Object.keys(grouped).sort()
         </div>
       </header>
 
-      {/* ── Body ───────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden relative">
+      {/* ── Body — offset on mobile to sit below fixed header ───────── */}
+      <div className="flex flex-1 overflow-hidden relative pt-[53px] md:pt-0">
 
         {/* ── Mobile overlay backdrop ──────────────────────────────── */}
         {sidebarOpen && (
@@ -290,7 +296,13 @@ const categoryOrder = Object.keys(grouped).sort()
             </div>
           ) : ActiveComponent ? (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-2.5 border-b border-divider bg-content1 flex-shrink-0">
+              <div className={`
+                fixed top-[53px] left-0 right-0 z-40
+                md:static md:z-auto md:top-auto
+                flex items-center gap-3 px-5 py-2.5 border-b border-divider bg-content1
+                transition-transform duration-300 md:translate-y-0
+                ${headerHidden ? '-translate-y-[106px]' : 'translate-y-0'}
+              `}>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-foreground truncate">{selected.name}</p>
                   <p className="text-xs text-default-400">{formatCategory(selected.category)}</p>
@@ -312,7 +324,7 @@ const categoryOrder = Object.keys(grouped).sort()
                   Close ✕
                 </Button>
               </div>
-              <div className="flex-1 overflow-auto pb-20 md:pb-0" onScroll={handleContentScroll}>
+              <div className="flex-1 overflow-auto pt-[50px] md:pt-0 pb-20 md:pb-0" onScroll={handleContentScroll}>
                 <Suspense fallback={
                   <div className="flex items-center justify-center p-12">
                     <Spinner label="Rendering..." />
