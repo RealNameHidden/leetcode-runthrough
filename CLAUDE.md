@@ -45,6 +45,14 @@ Must contain **in this order**:
 ### 1. Problem Statement Card
 Clear explanation of what needs to be solved, with constraints and expectations.
 
+**Do NOT:**
+- Use HTML entities for generics in the method signature (e.g. `List&lt;List&lt;Integer&gt;&gt;`). They render as literal `&lt;`/`&gt;` in the UI. Put the real characters in the data and render with `{sig}`.
+- Omit `flex-wrap` and `min-w-0`/`flex-1` on the signature row; without them the description can wrap awkwardly or be squeezed.
+
+**Do:**
+- Store the signature as a normal string with real angle brackets, e.g. `sig: "List<List<Integer>> methodName(int[] nums)"`, and render it as `{sig}` so brackets display correctly.
+- Use the layout below so the signature can break and the description has room: container has `flex-wrap`, code has `shrink-0 min-w-0 break-all`, description span has `min-w-0 flex-1` and `text-xs text-default-500 leading-relaxed`.
+
 ```jsx
 <Card><CardBody>
   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
@@ -53,11 +61,11 @@ Clear explanation of what needs to be solved, with constraints and expectations.
   </p>
   <div className="flex flex-col gap-2">
     {[
-      { sig: "method signature", desc: "What it does and constraints" },
+      { sig: "List<List<Integer>> methodName(int[] nums)", desc: "What it does and constraints." },
     ].map(({ sig, desc }) => (
-      <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
-        <code className="text-xs font-mono flex-shrink-0" style={{ color: TEAL }}>{sig}</code>
-        <span className="text-xs text-default-500 leading-relaxed">{desc}</span>
+      <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+        <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
+        <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
       </div>
     ))}
   </div>
@@ -393,6 +401,7 @@ Before considering an artifact done:
 - [ ] `export const difficulty` is set
 - [ ] All 4 tabs present: Problem, Intuition, Visualizer, Code
 - [ ] Problem: statement card + example walkthrough with input/output
+- [ ] Problem statement: method signature uses real angle brackets in data (no `&lt;`/`&gt;`), and signature row uses `flex-wrap`, code `shrink-0 min-w-0 break-all`, span `min-w-0 flex-1`
 - [ ] Intuition: dual-panel core idea, algorithm template, key insight callout, complexity
 - [ ] Visualizer: presets, inputs, step pills, status line, live code block, visual panel, prev/next, final state
 - [ ] Code: full Java solution, line-by-line breakdown, pattern tips
