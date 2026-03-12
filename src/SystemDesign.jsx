@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
-import { Chip, Switch } from "@heroui/react";
+import { Switch } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEAL = "#4ecca3";
@@ -29,6 +29,18 @@ function MoonIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  );
+}
+
+function CoffeeIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10 2v2" />
+      <path d="M14 2v2" />
+      <path d="M16 8h1a3 3 0 0 1 0 6h-1" />
+      <path d="M2 8h14v5a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4Z" />
+      <path d="M6 22h8" />
     </svg>
   );
 }
@@ -436,7 +448,7 @@ function PatternCard({ pattern, index }) {
 }
 
 // ── Main Component ───────────────────────────────────────────────────
-export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive }) {
+export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive, supportUrl }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const [patternSearch, setPatternSearch] = useState("");
 
@@ -583,6 +595,17 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
             </Tab>
 
           </Tabs>
+          <div className="pt-8 pb-2 text-center">
+            <a
+              href={supportUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-default-400 transition-colors hover:text-foreground"
+            >
+              <CoffeeIcon />
+              Buy me a coffee
+            </a>
+          </div>
         </div>
       </div>
     </div>

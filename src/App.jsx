@@ -13,6 +13,9 @@ const difficultyStyle = {
   Hard:   { letter: 'h', bg: 'bg-pink-200 text-pink-700' },
 }
 
+// Replace this with your real support link later.
+const SUPPORT_URL = 'https://buymeacoffee.com/your-link-here'
+
 const artifactList = Object.entries(artifactModules).map(([path, loader]) => {
   const parts = path.split('/')
   const artifactIdx = parts.indexOf('artifact')
@@ -68,6 +71,18 @@ function HamburgerIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  )
+}
+
+function CoffeeIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10 2v2" />
+      <path d="M14 2v2" />
+      <path d="M16 8h1a3 3 0 0 1 0 6h-1" />
+      <path d="M2 8h14v5a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4Z" />
+      <path d="M6 22h8" />
     </svg>
   )
 }
@@ -183,6 +198,7 @@ const categoryOrder = Object.keys(grouped).sort()
           isDark={isDark}
           onDarkModeChange={setIsDark}
           onSwitchToArchive={() => switchMode('archive')}
+          supportUrl={SUPPORT_URL}
         />
       ) : (
         <>
@@ -310,7 +326,18 @@ const categoryOrder = Object.keys(grouped).sort()
                 })}
               </ScrollShadow>
               <div className="px-4 py-2.5 border-t border-divider flex-shrink-0">
-                <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
+                <div className="flex flex-col items-center gap-1.5">
+                  <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
+                  <a
+                    href={SUPPORT_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] text-default-400 transition-colors hover:text-foreground"
+                  >
+                    <CoffeeIcon />
+                    Buy me a coffee
+                  </a>
+                </div>
               </div>
             </aside>
 
