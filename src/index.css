@@ -46,6 +46,36 @@ html:not(.dark) .bg-content2 {
   background: #f0ebe0 !important;
 }
 
+/* ── Light mode: use the soft "Heap" blue for buttons ─────────────── */
+html:not(.dark) button.min-w-max.cursor-pointer.overflow-hidden.tap-highlight-transparent {
+  --heroui-primary-50: 214 60% 96%;
+  --heroui-primary-100: 216 58% 92%;
+  --heroui-primary-200: 215 56% 88%;
+  --heroui-primary-300: 215 54% 84%;
+  --heroui-primary-400: 214 52% 78%;
+  --heroui-primary-500: 214 50% 72%;
+  --heroui-primary-600: 214 61% 60%;
+  --heroui-primary-700: 214 71% 48%;
+  --heroui-primary-800: 214 82% 39%;
+  --heroui-primary-900: 214 93% 29%;
+  --heroui-primary: 214 58% 88%;
+  --heroui-primary-foreground: 213 100% 38%;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+html:not(.dark) button.min-w-max.cursor-pointer.overflow-hidden.tap-highlight-transparent:not([class*="success"]):not([class*="danger"]) {
+  background: #cfdbf2 !important;
+  border-color: #cfdbf2 !important;
+  color: #005bc4 !important;
+  box-shadow: none !important;
+}
+
+html:not(.dark) button.min-w-max.cursor-pointer.overflow-hidden.tap-highlight-transparent:not([class*="success"]):not([class*="danger"]):hover {
+  background: #c4d4f1 !important;
+  border-color: #c4d4f1 !important;
+  color: #005bc4 !important;
+}
+
 /* ── Dark mode: deep purple-to-blue-black gradient background ─────── */
 html.dark body {
   background: linear-gradient(160deg, #1a0a2e 0%, #0d0a24 35%, #06041a 70%, #000208 100%) fixed;

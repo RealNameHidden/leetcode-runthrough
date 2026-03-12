@@ -57,7 +57,7 @@ function ModeSwitch({ onSwitchToArchive }) {
       </button>
       <button
         type="button"
-        className="rounded-full bg-purple-100 px-3 py-1.5 text-xs font-medium text-purple-800 transition-colors dark:bg-purple-900/40 dark:text-purple-200"
+        className="rounded-full bg-[#cfdbf2] px-3 py-1.5 text-xs font-medium text-[#005bc4] transition-colors dark:bg-purple-900/40 dark:text-purple-200"
       >
         System Design
       </button>
