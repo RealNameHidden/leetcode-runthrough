@@ -358,6 +358,14 @@ const categoryOrder = Object.keys(grouped).sort()
                   <div className="flex flex-col items-center gap-1.5 border-t border-divider pt-3">
                     <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
                     <a
+                      href="https://github.com/RealNameHidden"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-default-400 transition-colors hover:text-foreground"
+                    >
+                      About me
+                    </a>
+                    <a
                       href={SUPPORT_URL}
                       target="_blank"
                       rel="noreferrer"

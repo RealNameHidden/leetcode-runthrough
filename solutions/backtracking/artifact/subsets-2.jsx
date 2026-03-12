@@ -94,7 +94,7 @@ export default function App() {
 
       <div className="border-b border-divider px-6 py-4 flex items-center gap-3 bg-content1">
         <span className="text-xl">📋</span>
-        <h1 className="font-semibold text-base">Subsets II</h1>
+        <h1 className="font-semibold text-base">Subsets 2</h1>
         <Chip size="sm" color="warning" variant="flat">Medium</Chip>
         <Chip size="sm" color="primary" variant="flat">Backtracking</Chip>
       </div>
@@ -146,7 +146,7 @@ when i > start && nums[i] == nums[i-1], skip.`}</CodeBlock>
                     <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Sort First</p>
                       <p className="text-sm leading-relaxed text-default-500">
-                        Sort the array so duplicate values are adjacent. Then we can skip duplicate “branches” in one rule: when <code>i &gt; start</code> and <code>nums[i] == nums[i-1]</code>, skip.
+                        Sort the array so duplicate values are adjacent. Then we can skip duplicate "branches" in one rule: when <code>i &gt; start</code> and <code>nums[i] == nums[i-1]</code>, skip.
                       </p>
                       <p className="text-xs text-default-400 mt-3 font-mono">Same as Subsets + sort</p>
                     </div>
@@ -176,7 +176,7 @@ void backtrack(int[] nums, int start, List<Integer> path, List<List<Integer>> re
                   <div className="mt-3 px-4 py-3 rounded-lg border text-xs leading-relaxed text-default-500"
                     style={{ background: `${GOLD}0d`, borderColor: `${GOLD}44` }}>
                     <span style={{ color: GOLD }} className="font-bold">⚠️ Key insight: </span>
-                    The condition is <code>i &gt; start</code>, not <code>i &gt; 0</code>. We allow the same value in a deeper call (e.g. [1,2,2]); we only skip when we’re choosing among siblings at the same level.
+                    The condition is <code>i &gt; start</code>, not <code>i &gt; 0</code>. We allow the same value in a deeper call (e.g. [1,2,2]); we only skip when we're choosing among siblings at the same level.
                   </div>
                 </CardBody>
               </Card>
@@ -351,8 +351,8 @@ class Solution {
                   <div className="flex flex-col gap-2">
                     {[
                       { icon: "📍", color: TEAL, tip: "Subsets II = Subsets + sort + skip duplicate: i > start && nums[i] == nums[i-1]." },
-                      { icon: "⚠️", color: GOLD, tip: "Use i > start, not i > 0. Otherwise you’d skip [1,2,2] when the second 2 is in a deeper call." },
-                      { icon: "🔄", color: BLUE, tip: "Same “add path, then for-each include/backtrack” template; the only extra is the continue for duplicates." },
+                      { icon: "⚠️", color: GOLD, tip: "Use i > start, not i > 0. Otherwise you'd skip [1,2,2] when the second 2 is in a deeper call." },
+                      { icon: "🔄", color: BLUE, tip: "Same \"add path, then for-each include/backtrack\" template; the only extra is the continue for duplicates." },
                       { icon: "💡", color: TEAL, tip: "This skip-duplicate pattern appears in Combination Sum II and Permutations II." },
                       { icon: "🎯", color: BLUE, tip: "Related: Subsets, Combination Sum II, Permutations II." },
                     ].map(({ icon, color, tip }) => (
