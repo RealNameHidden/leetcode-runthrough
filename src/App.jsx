@@ -1,7 +1,7 @@
-import { useState, Suspense, useEffect, useCallback, useRef } from 'react'
+import { useState, Suspense, useEffect, useRef } from 'react'
 import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
 import { motion } from 'framer-motion'
-import confetti from 'canvas-confetti'
+import SystemDesign from './SystemDesign'
 
 // Auto-discover all artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -35,18 +35,6 @@ const grouped = artifactList.reduce((acc, a) => {
 function formatCategory(cat) {
   return cat.replace(/_/g, ' & ').replace(/-/g, ' ')
     .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-}
-
-function fireConfetti() {
-  const count = 180
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 }
-  const randomInRange = (min, max) => Math.random() * (max - min) + min
-  confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
-  confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
-  setTimeout(() => {
-    confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
-    confetti({ ...defaults, particleCount: count * 0.25, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
-  }, 150)
 }
 
 function SunIcon() {
@@ -113,6 +101,15 @@ export default function App() {
       if (artifact) openArtifact(artifact)
     }
   }, [])
+
+  function openSystemDesign() {
+    const sentinel = { path: '__system_design__', name: 'System Design', category: '' }
+    if (selected?.path === sentinel.path) { setSidebarOpen(false); return }
+    setSelected(sentinel)
+    setActiveComponent(() => SystemDesign)
+    setSidebarOpen(false)
+    localStorage.removeItem('lastArtifactPath')
+  }
 
   async function openArtifact(artifact) {
     if (selected?.path === artifact.path) { setSidebarOpen(false); return }
@@ -225,7 +222,26 @@ const categoryOrder = Object.keys(grouped).sort()
               }
             />
           </div>
+          {/* System Design entry — pinned above scroll area */}
+          <div className="px-2 pt-2 pb-1 flex-shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              onClick={openSystemDesign}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selected?.path === '__system_design__'
+                  ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 shadow-sm'
+                  : 'text-default-500 hover:bg-content2 hover:text-foreground'
+              }`}
+            >
+              <span>🏗️</span>
+              <span className="flex-1 text-left">System Design</span>
+              <Chip size="sm" variant="flat" color="secondary" className="text-[10px] h-5">New</Chip>
+            </motion.button>
+            <div className="mt-1 border-t border-divider" />
+          </div>
           <ScrollShadow className="flex-1 overflow-y-auto py-2 px-2">
+
             {filteredCategories.length === 0 && (
               <p className="text-xs text-default-400 text-center py-6">No results for "{search}"</p>
             )}
@@ -296,35 +312,7 @@ const categoryOrder = Object.keys(grouped).sort()
             </div>
           ) : ActiveComponent ? (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className={`
-                fixed top-[53px] left-0 right-0 z-40
-                md:static md:z-auto md:top-auto
-                flex items-center gap-3 px-5 py-2.5 border-b border-divider bg-content1
-                transition-transform duration-300 md:translate-y-0
-                ${headerHidden ? '-translate-y-[106px]' : 'translate-y-0'}
-              `}>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-foreground truncate">{selected.name}</p>
-                  <p className="text-xs text-default-400">{formatCategory(selected.category)}</p>
-                </div>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    onPress={fireConfetti}
-                    className="font-medium bg-purple-50 dark:bg-purple-500/20 text-purple-500 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/30 hover:text-purple-700 dark:hover:text-purple-200 active:scale-95 transition-colors"
-                  >
-                    Understood!
-                  </Button>
-                <Button
-                  size="sm"
-                  variant="light"
-                  color="default"
-                  onPress={() => { setSelected(null); setActiveComponent(null) }}
-                >
-                  Close ✕
-                </Button>
-              </div>
-              <div className="flex-1 overflow-auto pt-[50px] md:pt-0 pb-20 md:pb-0" onScroll={handleContentScroll}>
+              <div className="flex-1 overflow-auto pb-20 md:pb-0" onScroll={handleContentScroll}>
                 <Suspense fallback={
                   <div className="flex items-center justify-center p-12">
                     <Spinner label="Rendering..." />
