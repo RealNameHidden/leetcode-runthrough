@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
-import { Chip } from "@heroui/react";
+import { Chip, Switch } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEAL = "#4ecca3";
@@ -12,6 +12,45 @@ const PURPLE = "#a78bfa";
 
 function publicAsset(path) {
   return `${import.meta.env.BASE_URL}${encodeURI(path)}`;
+}
+
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  );
+}
+
+function ModeSwitch({ onSwitchToArchive }) {
+  return (
+    <div className="flex items-center rounded-full border border-divider bg-content2 p-1">
+      <button
+        type="button"
+        onClick={onSwitchToArchive}
+        className="rounded-full px-3 py-1.5 text-xs font-medium text-default-500 transition-colors hover:text-foreground"
+      >
+        Algorithms
+      </button>
+      <button
+        type="button"
+        className="rounded-full bg-purple-100 px-3 py-1.5 text-xs font-medium text-purple-800 transition-colors dark:bg-purple-900/40 dark:text-purple-200"
+      >
+        System Design
+      </button>
+    </div>
+  );
 }
 
 // ── Key Technologies Data ────────────────────────────────────────────
@@ -397,7 +436,7 @@ function PatternCard({ pattern, index }) {
 }
 
 // ── Main Component ───────────────────────────────────────────────────
-export default function SystemDesign() {
+export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const [patternSearch, setPatternSearch] = useState("");
 
@@ -413,13 +452,29 @@ export default function SystemDesign() {
     : PATTERNS;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
-      <div className="border-b border-divider px-6 py-4 flex items-center gap-3 bg-content1 flex-shrink-0">
-        <span className="text-xl">🏗️</span>
-        <h1 className="font-semibold text-base">System Design</h1>
-        <Chip size="sm" color="secondary" variant="flat">Interview Prep</Chip>
-        <Chip size="sm" color="primary" variant="flat">{TECHNOLOGIES.length} Technologies · {PATTERNS.length} Patterns</Chip>
+      <div className="border-b border-divider px-6 py-4 flex items-center justify-between gap-3 bg-content1 flex-shrink-0 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap min-w-0">
+          <span className="text-xl">🏗️</span>
+          <div>
+            <h1 className="font-semibold text-base">System Design</h1>
+            <p className="text-xs text-default-400">Interview patterns and technologies</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <ModeSwitch onSwitchToArchive={onSwitchToArchive} />
+          <div className="flex items-center gap-1.5 text-default-400">
+            <SunIcon />
+            <Switch
+              size="sm"
+              isSelected={isDark}
+              onValueChange={onDarkModeChange}
+              aria-label="Toggle dark mode"
+            />
+            <MoonIcon />
+          </div>
+        </div>
       </div>
 
       {/* Content */}
