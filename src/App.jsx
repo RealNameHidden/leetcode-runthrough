@@ -324,21 +324,21 @@ const categoryOrder = Object.keys(grouped).sort()
                     </div>
                   )
                 })}
-              </ScrollShadow>
-              <div className="px-4 py-2.5 border-t border-divider flex-shrink-0">
-                <div className="flex flex-col items-center gap-1.5">
-                  <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
-                  <a
-                    href={SUPPORT_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] text-default-400 transition-colors hover:text-foreground"
-                  >
-                    <CoffeeIcon />
-                    Buy me a coffee
-                  </a>
+                <div className="px-2 pt-4 pb-2">
+                  <div className="flex flex-col items-center gap-1.5 border-t border-divider pt-3">
+                    <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
+                    <a
+                      href={SUPPORT_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-default-400 transition-colors hover:text-foreground"
+                    >
+                      <CoffeeIcon />
+                      Buy me a coffee
+                    </a>
+                  </div>
                 </div>
-              </div>
+              </ScrollShadow>
             </aside>
 
             {/* ── Main content ────────────────────────────────────────── */}
