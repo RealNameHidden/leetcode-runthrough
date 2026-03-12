@@ -190,6 +190,10 @@ const categoryOrder = Object.keys(grouped).sort()
       )
     : grouped
   const filteredCategories = query ? Object.keys(filteredGrouped) : categoryOrder
+  const quickStartArtifact =
+    artifactList.find(artifact => artifact.filename === 'two-sum') ??
+    artifactList[0] ??
+    null
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
@@ -351,8 +355,21 @@ const categoryOrder = Object.keys(grouped).sort()
                     </svg>
                   </div>
                   <div>
-                    <p className="text-xl font-semibold text-foreground">No Artifact Selected</p>
-                    <p className="text-sm text-default-400 mt-1">Choose an algorithm from the sidebar to begin</p>
+                    <p className="text-xl font-semibold text-foreground">Choose something to explore</p>
+                    <p className="text-sm text-default-400 mt-1">Pick an algorithm from the sidebar, or start with a quick suggestion.</p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap justify-center">
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      onPress={() => quickStartArtifact && openArtifact(quickStartArtifact)}
+                      isDisabled={!quickStartArtifact}
+                    >
+                      Try {quickStartArtifact?.name ?? 'a problem'}
+                    </Button>
+                    <Button size="sm" variant="light" onPress={openSystemDesign}>
+                      Open System Design
+                    </Button>
                   </div>
                 </div>
               ) : loading ? (
