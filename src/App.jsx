@@ -232,6 +232,7 @@ const categoryOrder = Object.keys(grouped).sort()
             fixed top-0 left-0 right-0 z-50
             md:static md:z-auto
             flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 gap-2
+            pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:pt-3
             transition-transform duration-300 md:translate-y-0
             ${headerHidden ? '-translate-y-full' : 'translate-y-0'}
           `}>
@@ -273,7 +274,7 @@ const categoryOrder = Object.keys(grouped).sort()
           <div
             className={`
               flex flex-1 overflow-hidden relative transition-[padding] duration-300 md:pt-0
-              ${headerHidden ? 'pt-0' : 'pt-[88px]'}
+              ${headerHidden ? 'pt-0' : 'pt-[calc(6rem+env(safe-area-inset-top,0px))]'}
             `}
           >
 
@@ -287,7 +288,7 @@ const categoryOrder = Object.keys(grouped).sort()
 
             {/* ── Sidebar ─────────────────────────────────────────────── */}
             <aside className={`
-              fixed md:relative left-0 bottom-0 top-[88px] md:inset-y-0 md:top-auto z-30
+              fixed md:relative left-0 bottom-0 top-[calc(6rem+env(safe-area-inset-top,0px))] md:inset-y-0 md:top-auto z-30
               w-64 flex-shrink-0 border-r border-divider bg-content1 flex flex-col
               transition-transform duration-300 ease-in-out
               ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}

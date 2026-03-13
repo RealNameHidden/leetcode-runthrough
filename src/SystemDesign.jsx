@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Switch } from "@heroui/react";
+import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CORE_CONCEPTS } from "./data/coreConcepts.js";
 
 const TEAL = "#4ecca3";
 const GOLD = "#f6c90e";
@@ -447,6 +449,156 @@ function PatternCard({ pattern, index }) {
   );
 }
 
+// ── Core Concept Card ─────────────────────────────────────────────────
+function CoreConceptCard({ concept, index }) {
+  const [expanded, setExpanded] = useState(false);
+  const fullTextModal = useDisclosure();
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.04, type: "spring", stiffness: 260, damping: 20 }}
+        onClick={() => setExpanded(e => !e)}
+        style={{
+          cursor: "pointer",
+          borderRadius: 12,
+          border: "1px solid var(--viz-border)",
+          borderLeft: `4px solid ${concept.color}`,
+          background: "var(--viz-surface)",
+          padding: "14px 16px",
+          transition: "box-shadow 0.2s",
+        }}
+        whileHover={{ boxShadow: `0 0 16px ${concept.color}22` }}
+      >
+        <div className="flex items-start gap-3">
+          <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>{concept.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">{concept.name}</p>
+            <p className="text-xs mt-0.5" style={{ color: concept.color, fontWeight: 600 }}>{concept.tagline}</p>
+            <p className="text-xs text-default-500 mt-1.5 leading-relaxed">{concept.desc}</p>
+            <AnimatePresence>
+              {expanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div className="mt-3 pt-3 space-y-3" style={{ borderTop: `1px solid ${concept.color}33` }}>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: concept.color }}>Key points</p>
+                      <ul className="text-xs text-default-500 leading-relaxed list-disc list-inside space-y-0.5">
+                        {concept.keyPoints.map((pt, i) => (
+                          <li key={i}>{pt}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div style={{
+                      padding: "10px 12px", borderRadius: 8,
+                      background: `${GOLD}0d`, border: `1px solid ${GOLD}44`,
+                    }}>
+                      <span style={{ color: GOLD, fontWeight: 700, fontSize: 11 }}>⚠️ Gotcha: </span>
+                      <span className="text-xs text-default-500">{concept.gotcha}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              <p className="text-[10px] text-default-400">
+                {expanded ? "Click to collapse" : "Click to expand key points & gotcha"}
+              </p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); fullTextModal.onOpen(); }}
+                className="text-[10px] font-semibold hover:underline"
+                style={{ color: concept.color }}
+              >
+                Full text
+              </button>
+            </div>
+          </div>
+          <motion.span
+            animate={{ rotate: expanded ? 90 : 0 }}
+            style={{ color: "var(--color-default-400)", fontSize: 12, flexShrink: 0 }}
+          >▶</motion.span>
+        </div>
+      </motion.div>
+
+      <Modal
+        isOpen={fullTextModal.isOpen}
+        onOpenChange={fullTextModal.onOpenChange}
+        size="2xl"
+        scrollBehavior="inside"
+        hideCloseButton
+        classNames={{
+          base: "max-h-[85vh] border border-divider [&_[data-slot=header]]:hidden",
+          body: "py-5 overflow-y-auto max-h-[85vh]",
+        }}
+      >
+        <ModalContent>
+          <ModalBody className="pt-6">
+            <div
+              className="rounded-xl p-4 pr-6"
+              style={{
+                background: "var(--viz-surface)",
+                border: `1px solid var(--viz-border)`,
+                borderLeft: `4px solid ${concept.color}`,
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span style={{ fontSize: 22 }}>{concept.emoji}</span>
+                <h3 className="text-base font-bold text-foreground">{concept.name}</h3>
+              </div>
+              <p className="text-sm mb-4" style={{ color: concept.color, fontWeight: 600 }}>
+                {concept.tagline}
+              </p>
+              <div className="text-sm text-default-600 leading-relaxed whitespace-pre-line mb-4">
+                {concept.fullExplanation}
+              </div>
+              <div className="mb-4">
+                <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: concept.color }}>
+                  Key points
+                </p>
+                <ul className="text-sm text-default-500 leading-relaxed list-disc list-inside space-y-0.5">
+                  {concept.keyPoints.map((pt, i) => (
+                    <li key={i}>{pt}</li>
+                  ))}
+                </ul>
+              </div>
+              <div
+                className="rounded-lg px-3 py-2 text-sm mb-4"
+                style={{
+                  background: `${GOLD}0d`,
+                  border: `1px solid ${GOLD}44`,
+                }}
+              >
+                <span style={{ color: GOLD, fontWeight: 700 }}>⚠️ Gotcha: </span>
+                <span className="text-default-500">{concept.gotcha}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => fullTextModal.onClose()}
+                className="text-sm font-medium py-2 px-4 rounded-lg border transition-colors"
+                style={{
+                  borderColor: "var(--viz-border)",
+                  background: "var(--viz-surface)",
+                  color: "var(--color-foreground)",
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────────────
 export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive, supportUrl }) {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -494,7 +646,24 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
         <div className="p-6 max-w-5xl mx-auto">
           <Tabs aria-label="System Design" color="primary" variant="underlined">
 
-            {/* ── Tab 0: Key Technologies ── */}
+            {/* ── Tab 0: Core Concepts ── */}
+            <Tab key="core-concepts" title="📚 Core Concepts">
+              <div className="pt-4 flex flex-col gap-4">
+                <p className="text-sm text-default-500 leading-relaxed">
+                  Fundamental principles that form the foundation of system design interviews. Technology-agnostic building blocks that show up across nearly every design problem.
+                </p>
+                <div className="flex flex-col gap-3">
+                  {CORE_CONCEPTS.map((concept, i) => (
+                    <CoreConceptCard key={concept.name} concept={concept} index={i} />
+                  ))}
+                </div>
+                <p className="text-xs text-default-400 text-center mt-2">
+                  Click any card to expand key points; use “Full text” for the full explanation in a popup.
+                </p>
+              </div>
+            </Tab>
+
+            {/* ── Tab 1: Key Technologies ── */}
             <Tab key="technologies" title="⚡ Key Technologies">
               <div className="pt-4 flex flex-col gap-4">
                 {/* Filter pills */}
@@ -540,7 +709,7 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
               </div>
             </Tab>
 
-            {/* ── Tab 1: Patterns ── */}
+            {/* ── Tab 2: Patterns ── */}
             <Tab key="patterns" title="🔄 Patterns">
               <div className="pt-4 flex flex-col gap-4">
                 {/* Search */}
@@ -595,6 +764,7 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
             </Tab>
 
           </Tabs>
+
           <div className="pt-8 pb-2 text-center">
             <a
               href={supportUrl}
