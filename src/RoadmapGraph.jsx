@@ -72,23 +72,18 @@ export default function RoadmapGraph({ artifacts, revisions, onCategoryClick, is
     const map = {}
     for (const node of nodes) {
       const inCat = artifacts.filter(a => a.category === node.id)
-      let totalRevisions = 0
-      for (const a of inCat) {
+      const counts = inCat.map(a => {
         const v = revisions[a.path]
-        const count = typeof v === 'object' && v != null && 'count' in v ? v.count : (Number(v) || 0)
-        totalRevisions += count
-      }
-      const seen = inCat.filter(a => {
-        const v = revisions[a.path]
-        const count = typeof v === 'object' && v != null && 'count' in v ? v.count : (Number(v) || 0)
-        return count > 0
-      }).length
+        return typeof v === 'object' && v != null && 'count' in v ? v.count : (Number(v) || 0)
+      })
+      const minCount = inCat.length > 0 ? Math.min(...counts) : 0
+      const seen = inCat.filter((_, i) => counts[i] > 0).length
       let tier = 'none'
-      if (totalRevisions > 20) tier = 'legendary'
-      else if (totalRevisions > 10) tier = 'gold'
-      else if (totalRevisions > 5) tier = 'silver'
-      else if (totalRevisions > 0) tier = 'bronze'
-      map[node.id] = { seen, total: inCat.length, totalRevisions, tier }
+      if (minCount > 20) tier = 'legendary'
+      else if (minCount > 10) tier = 'gold'
+      else if (minCount > 5) tier = 'silver'
+      else if (minCount > 0) tier = 'bronze'
+      map[node.id] = { seen, total: inCat.length, minCount, tier }
     }
     return map
   }, [artifacts, revisions, nodes])
@@ -97,6 +92,21 @@ export default function RoadmapGraph({ artifacts, revisions, onCategoryClick, is
     KNOWN_EDGES.filter(([a, b]) => nodeMap[a]?.hasArtifacts && nodeMap[b]?.hasArtifacts),
     [nodeMap]
   )
+
+  function getMedalTooltip(tier) {
+    switch (tier) {
+      case 'bronze':
+        return 'Bronze — every problem in this category revised at least once. Next: Silver (revise each >5 times).'
+      case 'silver':
+        return 'Silver — every problem revised more than 5 times. Next: Gold (revise each >10 times).'
+      case 'gold':
+        return 'Gold — every problem revised more than 10 times. Next: Legendary (revise each >20 times).'
+      case 'legendary':
+        return "Legendary — every problem revised more than 20 times. You've reached the top tier!"
+      default:
+        return 'No medal yet. Next: Bronze (revise every problem in this category at least once).'
+    }
+  }
 
   const viewBoxH = overflowCount > 0 ? 1050 : 930
 
@@ -280,9 +290,10 @@ export default function RoadmapGraph({ artifacts, revisions, onCategoryClick, is
                 {node.label}
               </text>
 
-              {/* Medal: emoji or legendary SVG */}
-              {tier !== 'none' && (
+              {/* Medal: emoji or legendary SVG (with tooltip on hover) */}
+              {tier !== 'none' ? (
                 <g transform={`translate(${node.x}, ${node.y + 16})`}>
+                  <title>{getMedalTooltip(tier)}</title>
                   {tier === 'legendary' ? (
                     <g filter="url(#legendaryGlow)">
                       <use href="#legendaryIcon" x="-8" y="-8" width={16} height={16} />
@@ -293,7 +304,12 @@ export default function RoadmapGraph({ artifacts, revisions, onCategoryClick, is
                     </text>
                   )}
                 </g>
-              )}
+              ) : node.hasArtifacts ? (
+                <g transform={`translate(${node.x}, ${node.y + 16})`}>
+                  <title>{getMedalTooltip('none')}</title>
+                  <rect x={-10} y={-6} width={20} height={12} fill="transparent" />
+                </g>
+              ) : null}
             </g>
           )
         })}
