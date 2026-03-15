@@ -176,21 +176,11 @@ Must contain **in this order**:
 ### 2. Step-by-Step Debugger Card
 This is the CORE of the visualizer. It must have:
 
-**a) Numbered step pills** — one clickable pill per step, active one highlighted in TEAL:
+**a) Step counter** — a single `{si+1}/{steps.length}` label in TEAL. No individual pill per step:
 ```jsx
-<div className="flex gap-1.5 mb-4 flex-wrap">
-  {steps.map((s, i) => (
-    <button key={i} onClick={() => setSi(i)}
-      style={{
-        background: i === si ? TEAL : "var(--viz-surface)",
-        border: `1px solid ${i === si ? TEAL : "var(--viz-border)"}`,
-        color: i === si ? "#0b0f0e" : undefined
-      }}
-      className="px-2.5 py-1 rounded text-xs cursor-pointer">
-      #{i + 1}
-    </button>
-  ))}
-</div>
+<p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+  {si + 1}/{steps.length}
+</p>
 ```
 
 **b) Status line** — one sentence describing current node/index/state with colored spans:
@@ -404,6 +394,7 @@ Before considering an artifact done:
 - [ ] Problem statement: method signature uses real angle brackets in data (no `&lt;`/`&gt;`), and signature row uses `flex-wrap`, code `shrink-0 min-w-0 break-all`, span `min-w-0 flex-1`
 - [ ] Intuition: dual-panel core idea, algorithm template, key insight callout, complexity
 - [ ] Visualizer: presets, inputs, step pills, status line, live code block, visual panel, prev/next, final state
+- [ ] Step counter shows `{si+1}/{steps.length}` in TEAL — no individual pill per step
 - [ ] Code: full Java solution, line-by-line breakdown, pattern tips
 - [ ] Colors only use TEAL / GOLD / BLUE / RED constants — no hardcoded hex elsewhere
 - [ ] CSS variables used for all theme-dependent colors (backgrounds, borders, text)
