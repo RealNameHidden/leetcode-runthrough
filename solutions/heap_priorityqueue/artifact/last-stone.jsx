@@ -368,22 +368,8 @@ return maxHeap.isEmpty() ? 0 : maxHeap.peek();`}</CodeBlock>
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Smash Simulation</p>
 
-                    {/* Step Pills */}
-                    <div className="flex gap-1.5 mb-4 flex-wrap">
-                      {steps.map((s, i) => {
-                        const c = s.action === "done" ? TEAL : s.action === "equal" ? RED : s.smash ? GOLD : BLUE;
-                        return (
-                          <button key={i} onClick={() => setSi(i)}
-                            className="px-2 py-0.5 rounded text-[11px] cursor-pointer font-mono"
-                            style={{
-                              background: i === si ? `${c}20` : "var(--viz-surface)",
-                              border: `1px solid ${i === si ? c : "var(--viz-border)"}`,
-                              color: i === si ? c : "var(--viz-muted)"
-                            }}>
-                            {i === 0 ? "init" : i}
-                          </button>
-                        );
-                      })}
+                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
                     </div>
 
                     {/* Status Line */}

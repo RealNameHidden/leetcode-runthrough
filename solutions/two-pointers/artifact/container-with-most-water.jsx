@@ -168,14 +168,8 @@ export default function App(){
               {steps.length>0&&step&&(
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Two Pointer Simulation</p>
-                  <div className="flex gap-1.5 mb-4 flex-wrap">
-                    {steps.map((_,i)=>(
-                      <button key={i} onClick={()=>setSi(i)}
-                        className="px-2 py-0.5 rounded text-[11px] cursor-pointer"
-                        style={{background:i===si?`${ACCENT}20`:"var(--viz-surface)",border:`1px solid ${i===si?ACCENT:"var(--viz-border)"}`,color:i===si?ACCENT:"var(--viz-muted)"}}>
-                        {i===0?"init":i}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <span className="text-xs font-mono text-default-500"><strong style={{ color: ACCENT }}>{si + 1}</strong> / {steps.length}</span>
                   </div>
                   <div className="rounded-lg px-4 py-3 mb-4" style={{background:isBest?`${GREEN}12`:`${ACCENT}0d`,border:`1px solid ${isBest?GREEN:ACCENT}44`}}>
                     <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>

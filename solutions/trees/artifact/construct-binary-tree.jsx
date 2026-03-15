@@ -300,19 +300,8 @@ export default function App() {
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Live Debugger</p>
 
-                    {/* call pills */}
-                    <div className="flex gap-1.5 mb-4 flex-wrap">
-                      {steps.map((s,i) => (
-                        <button key={i} onClick={() => setSi(i)}
-                          className={`px-2.5 py-1 rounded text-xs cursor-pointer transition-colors ${
-                            i===si
-                              ? "font-bold text-white"
-                              : "text-default-500 hover:bg-content2"
-                          }`}
-                          style={{ background: i===si ? TEAL : "var(--viz-surface)", border:`1px solid ${i===si?TEAL:"var(--viz-border)"}`, color: i===si ? "#0b0f0e" : undefined }}>
-                          #{i+1}
-                        </button>
-                      ))}
+                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
                     </div>
 
                     {/* context */}

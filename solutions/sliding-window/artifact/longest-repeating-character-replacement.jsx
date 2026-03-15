@@ -371,21 +371,8 @@ return best;`}</CodeBlock>
               {step && (
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step Debugger</p>
-                  <div className="flex gap-1.5 mb-4 flex-wrap">
-                    {steps.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSi(index)}
-                        style={{
-                          background: index === si ? TEAL : "var(--viz-surface)",
-                          border: `1px solid ${index === si ? TEAL : "var(--viz-border)"}`,
-                          color: index === si ? "#0b0f0e" : undefined
-                        }}
-                        className="px-2.5 py-1 rounded text-xs cursor-pointer"
-                      >
-                        #{index + 1}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
                   </div>
 
                   <p className="text-xs text-default-500 mb-4">
