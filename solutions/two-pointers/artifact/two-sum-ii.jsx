@@ -12,7 +12,6 @@ const TEAL  = "#4ecca3";
 const GOLD  = "#f6c90e";
 const BLUE  = "#5dade2";
 const RED   = "#ff6b6b";
-const GREEN = "#22c55e";
 
 // ── Simulate algorithm, record every decision ─────────────────────────
 function simulate(numsStr, targetStr) {
@@ -124,7 +123,7 @@ function CodeLine({ children, highlight, annotation, annotationColor }) {
 // ── Phase helpers ─────────────────────────────────────────────────────
 function phaseLabel(phase) {
   if (phase === 'init')      return { text: "Initialize pointers",       color: BLUE  };
-  if (phase === 'found')     return { text: "✓ Target found!",           color: GREEN };
+  if (phase === 'found')     return { text: "✓ Target found!",           color: TEAL };
   if (phase === 'too_small') return { text: "Sum too small → left++",    color: TEAL  };
   if (phase === 'too_large') return { text: "Sum too large → right--",   color: GOLD  };
   return { text: "", color: BLUE };
@@ -132,7 +131,7 @@ function phaseLabel(phase) {
 
 // ── Main export ────────────────────────────────────────────────────────
 export default function App() {
-  const [tab,         setTab]         = useState("Visualizer");
+  const [tab,         setTab]         = useState("Problem");
   const [numsInput,   setNumsInput]   = useState("2,7,11,15");
   const [targetInput, setTargetInput] = useState("9");
   const [steps,       setSteps]       = useState([]);
@@ -166,6 +165,44 @@ export default function App() {
           variant="underlined" color="primary" size="sm"
         >
 
+          {/* ── PROBLEM ────────────────────────────────────────────── */}
+          <Tab key="Problem" title="Problem">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+                <p className="text-sm text-default-600 leading-relaxed mb-4">
+                  Given a <strong>1-indexed</strong> sorted array of integers, find two numbers that add up to a given target. Return their indices as <code>[index1, index2]</code> (1-indexed). Exactly one solution is guaranteed, and you may not use the same element twice.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    { sig: "int[] twoSum(int[] numbers, int target)", desc: "Returns [index1, index2] (1-indexed). numbers is sorted ascending. One solution always exists." },
+                  ].map(({ sig, desc }) => (
+                    <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+                      <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
+                      <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardBody></Card>
+
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — numbers = [2,7,11,15], target = 9</p>
+                <CodeBlock language="text">{`Input:  numbers = [2, 7, 11, 15],  target = 9
+Output: [1, 2]   (1-indexed)
+
+Array is sorted, so start with widest window: L=0 (val=2), R=3 (val=15)
+  2 + 15 = 17 > 9  → too large, move R left
+  2 + 11 = 13 > 9  → too large, move R left
+  2 +  7 =  9 = 9  → FOUND! return [1, 2]
+
+Why two pointers work:
+  - sum < target → left value is useless (can never reach target with any smaller R)
+  - sum > target → right value is useless (can never reach target with any larger L)
+  Each step eliminates one element permanently → O(n) total.`}</CodeBlock>
+              </CardBody></Card>
+            </div>
+          </Tab>
+
           {/* ── INTUITION ──────────────────────────────────────────── */}
           <Tab key="Intuition" title="Intuition">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
@@ -174,14 +211,14 @@ export default function App() {
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Sorted = Predictable 📏</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Because the array is sorted, moving <strong>left right</strong> increases the sum and moving <strong>right left</strong> decreases it. We can always choose which direction closes in on the target.
                       </p>
                       <p className="text-xs text-default-400 mt-3 font-mono">left → bigger sum, right → smaller sum</p>
                     </div>
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Converging Pointers ✂️</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Start with the <strong>widest window</strong> possible (index 0 and end). Each step we eliminate one element — either the leftmost or rightmost — that can never be part of the answer.
@@ -274,10 +311,9 @@ export default function App() {
                 <Card>
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step</p>
-
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
-                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                    </div>
+                    <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                      {si + 1}/{steps.length}
+                    </p>
 
                     {/* Status line */}
                     <p className="text-xs text-default-500 mb-4">
@@ -306,13 +342,13 @@ export default function App() {
                       <CodeLine
                         highlight={step.phase === 'too_small' || step.phase === 'too_large' || step.phase === 'found' || step.phase === 'check'}
                         annotation={step.sum !== null ? `${step.nums?.[step.left]} + ${step.nums?.[step.right]} = ${step.sum}` : undefined}
-                        annotationColor={step.phase === 'found' ? GREEN : BLUE}>
+                        annotationColor={step.phase === 'found' ? TEAL : BLUE}>
                         <span style={{ color: "var(--code-muted)" }}>sum = nums[L] + nums[R] → </span>
-                        {step.sum !== null ? <V color={step.phase === 'found' ? GREEN : step.phase === 'too_small' ? RED : GOLD}>{step.sum}</V>
+                        {step.sum !== null ? <V color={step.phase === 'found' ? TEAL : step.phase === 'too_small' ? RED : GOLD}>{step.sum}</V>
                           : <span style={{ color: "var(--code-muted)" }}>—</span>}
                       </CodeLine>
 
-                      <CodeLine highlight={step.phase === 'found'} annotation={step.phase === 'found' ? `return [${step.result}]` : undefined} annotationColor={GREEN}>
+                      <CodeLine highlight={step.phase === 'found'} annotation={step.phase === 'found' ? `return [${step.result}]` : undefined} annotationColor={TEAL}>
                         <span style={{ color: BLUE }}>if </span>
                         <span style={{ color: "var(--code-muted)" }}>sum == target</span>
                         <V color={GOLD}>{target}</V>
@@ -343,8 +379,8 @@ export default function App() {
                     {/* Result banner */}
                     {step.phase === 'found' && (
                       <div className="rounded-lg px-4 py-3 mb-4 text-xs font-mono"
-                        style={{ background: `${GREEN}15`, border: `1px solid ${GREEN}44`, borderLeft: `3px solid ${GREEN}` }}>
-                        <span style={{ color: GREEN }} className="font-bold">✓ Answer: </span>
+                        style={{ background: `${TEAL}15`, border: `1px solid ${TEAL}44`, borderLeft: `3px solid ${TEAL}` }}>
+                        <span style={{ color: TEAL }} className="font-bold">✓ Answer: </span>
                         [{step.result[0]}, {step.result[1]}] (1-indexed) —{" "}
                         nums[{step.result[0]-1}] + nums[{step.result[1]-1}] = {step.nums[step.left]} + {step.nums[step.right]} = {target}
                       </div>

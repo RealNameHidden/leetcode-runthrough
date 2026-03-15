@@ -327,9 +327,9 @@ return best;`}</CodeBlock>
               {step && (
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step Debugger</p>
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                    {si + 1}/{steps.length}
+                  </p>
 
                   <p className="text-xs text-default-500 mb-4">
                     Char: <span style={{ color: GOLD }}>{step.ch}</span> ·

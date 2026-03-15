@@ -230,14 +230,14 @@ Output: A new graph with the same structure.
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                 <div className="flex gap-3 flex-wrap">
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>HashMap: Dual Purpose</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Maps each original node → its clone. Acts as both a <strong>visited set</strong> (prevents infinite cycles) and a <strong>clone registry</strong> for wiring edges.
                     </p>
                     <p className="text-xs text-default-400 mt-3 font-mono">original → clone</p>
                   </div>
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>BFS Traversal</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Visit every node exactly once. For each: clone unseen neighbors, then <strong>always</strong> wire edges in the clone graph (even for already-seen neighbors).
@@ -317,10 +317,9 @@ Output: A new graph with the same structure.
 
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step</p>
-
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                </div>
+                <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                  {si + 1}/{steps.length}
+                </p>
 
                 {/* Status line */}
                 <p className="text-xs text-default-500 mb-4">

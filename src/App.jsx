@@ -2,6 +2,7 @@ import { useState, Suspense, useEffect, useRef } from 'react'
 import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
 import { motion } from 'framer-motion'
 import SystemDesign from './SystemDesign'
+import RoadmapGraph from './RoadmapGraph'
 
 // Auto-discover all artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -125,6 +126,30 @@ export default function App() {
   const [expanded, setExpanded] = useState({})
   const [search, setSearch] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [revisions, setRevisions] = useState(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem('artifact-revisions') || '{}')
+      const out = {}
+      for (const [path, val] of Object.entries(raw)) {
+        out[path] = typeof val === 'object' && val != null && 'count' in val
+          ? { count: val.count, lastDate: val.lastDate || '' }
+          : { count: Number(val) || 0, lastDate: '' }
+      }
+      return out
+    } catch { return {} }
+  })
+
+  function getRevisionCount(path) {
+    const v = revisions[path]
+    return typeof v === 'object' && v != null ? v.count : (Number(v) || 0)
+  }
+
+  function canLogRevisionToday(path) {
+    const today = new Date().toISOString().slice(0, 10)
+    const v = revisions[path]
+    const lastDate = typeof v === 'object' && v != null ? v.lastDate : ''
+    return lastDate !== today
+  }
   const [headerHidden, setHeaderHidden] = useState(false)
   const lastScrollY = useRef(0)
   const headerToggleScrollY = useRef(0)
@@ -178,6 +203,19 @@ export default function App() {
     switchMode('system-design')
   }
 
+  function logRevision() {
+    if (!selected?.path) return
+    if (!canLogRevisionToday(selected.path)) return
+    const today = new Date().toISOString().slice(0, 10)
+    setRevisions(prev => {
+      const v = prev[selected.path]
+      const count = (typeof v === 'object' && v != null ? v.count : Number(v) || 0) + 1
+      const next = { ...prev, [selected.path]: { count, lastDate: today } }
+      localStorage.setItem('artifact-revisions', JSON.stringify(next))
+      return next
+    })
+  }
+
   async function openArtifact(artifact) {
     switchMode('archive')
     if (selected?.path === artifact.path) { setSidebarOpen(false); return }
@@ -198,6 +236,14 @@ export default function App() {
 
   function toggleCategory(cat) {
     setExpanded(prev => ({ ...prev, [cat]: !prev[cat] }))
+  }
+
+  function onCategoryClick(categoryId) {
+    setSidebarOpen(true)
+    setExpanded(prev => ({ ...prev, [categoryId]: true }))
+    setTimeout(() => {
+      document.getElementById(`cat-${categoryId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
   }
 
 const categoryOrder = Object.keys(grouped).sort()
@@ -245,13 +291,19 @@ const categoryOrder = Object.keys(grouped).sort()
               >
                 <HamburgerIcon />
               </button>
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                <BookIcon />
-              </div>
-              <div>
-                <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Leetcode Archive</h1>
-                <p className="hidden sm:block text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
-              </div>
+              <button
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                onClick={() => { setSelected(null); setActiveComponent(null); setSidebarOpen(false); setExpanded({}); localStorage.removeItem('lastArtifactPath') }}
+                aria-label="Go home"
+              >
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                  <BookIcon />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Leetcode Archive</h1>
+                  <p className="hidden sm:block text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
+                </div>
+              </button>
             </div>
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <ModeSwitch mode={mode} onChange={switchMode} />
@@ -315,9 +367,9 @@ const categoryOrder = Object.keys(grouped).sort()
                   <p className="text-xs text-default-400 text-center py-6">No results for "{search}"</p>
                 )}
                 {filteredCategories.map(cat => {
-                  const isOpen = query ? true : expanded[cat] !== false
+                  const isOpen = query ? true : expanded[cat] === true
                   return (
-                    <div key={cat} className="mb-0.5">
+                    <div key={cat} id={`cat-${cat}`} className="mb-0.5">
                       <button
                         onClick={() => toggleCategory(cat)}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left hover:bg-content2 transition-colors"
@@ -358,6 +410,17 @@ const categoryOrder = Object.keys(grouped).sort()
                 <div className="px-2 pt-4 pb-2">
                   <div className="flex flex-col items-center gap-1.5 border-t border-divider pt-3">
                     <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
+                    <button
+                      className="text-[10px] text-default-300 hover:text-red-400 transition-colors"
+                      onClick={() => {
+                        if (confirm('Reset all revision progress?')) {
+                          setRevisions({})
+                          localStorage.removeItem('artifact-revisions')
+                        }
+                      }}
+                    >
+                      Reset revision progress
+                    </button>
                     <a
                       href="https://github.com/RealNameHidden"
                       target="_blank"
@@ -383,28 +446,15 @@ const categoryOrder = Object.keys(grouped).sort()
             {/* ── Main content ────────────────────────────────────────── */}
             <main className="flex-1 overflow-hidden flex flex-col bg-background">
               {!selected ? (
-                <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                  <div className="w-20 h-20 rounded-2xl bg-content2 flex items-center justify-center text-default-300">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xl font-semibold text-foreground">Choose something to explore</p>
-                    <p className="text-sm text-default-400 mt-1">Pick an algorithm from the sidebar, or start with a quick suggestion.</p>
-                  </div>
-                  <div className="flex gap-2 flex-wrap justify-center">
-                    <Button
-                      size="sm"
-                      variant="bordered"
-                      onPress={() => quickStartArtifact && openArtifact(quickStartArtifact)}
-                      isDisabled={!quickStartArtifact}
-                    >
-                      Try {quickStartArtifact?.name ?? 'a problem'}
-                    </Button>
-                    <Button size="sm" variant="light" onPress={openSystemDesign}>
-                      Open System Design
-                    </Button>
+                <div className="flex-1 overflow-hidden flex flex-col items-center p-3 gap-2">
+                  <p className="text-xs text-default-400 flex-shrink-0">Click a category to open it in the sidebar</p>
+                  <div className="flex-1 w-full min-h-0">
+                    <RoadmapGraph
+                      artifacts={artifactList}
+                      revisions={revisions}
+                      onCategoryClick={onCategoryClick}
+                      isDark={isDark}
+                    />
                   </div>
                 </div>
               ) : loading ? (
@@ -413,7 +463,7 @@ const categoryOrder = Object.keys(grouped).sort()
                 </div>
               ) : ActiveComponent ? (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-auto pb-20 md:pb-0" onScroll={handleContentScroll}>
+                  <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
                     <Suspense fallback={
                       <div className="flex items-center justify-center p-12">
                         <Spinner label="Rendering..." />
@@ -421,6 +471,30 @@ const categoryOrder = Object.keys(grouped).sort()
                     }>
                       <ActiveComponent />
                     </Suspense>
+                  </div>
+                  <div className="flex-shrink-0 border-t border-divider bg-content1/80 backdrop-blur-sm px-4 py-3 flex items-center justify-center">
+                    <motion.button
+                      type="button"
+                      onClick={logRevision}
+                      disabled={selected?.path ? !canLogRevisionToday(selected.path) : true}
+                      className="select-none flex items-center gap-2 px-5 py-2.5 rounded-2xl font-medium text-sm shadow-lg border-2 border-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{
+                        background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%)',
+                        color: 'hsl(var(--primary-foreground))',
+                        boxShadow: '0 4px 14px hsl(var(--primary) / 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.2)',
+                      }}
+                    >
+                      <span className="text-base">{selected?.path && !canLogRevisionToday(selected.path) ? '✅' : '📖'}</span>
+                      <span>Revised!</span>
+                      {getRevisionCount(selected?.path) > 0 && (
+                        <span className="min-w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-xs font-bold px-1">
+                          {getRevisionCount(selected.path)}
+                        </span>
+                      )}
+                    </motion.button>
+                    {selected?.path && !canLogRevisionToday(selected.path) && (
+                      <span className="text-xs text-default-400 ml-2">Already revised today</span>
+                    )}
                   </div>
                 </div>
               ) : null}

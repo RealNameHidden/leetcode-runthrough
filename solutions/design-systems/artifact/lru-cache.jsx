@@ -220,7 +220,7 @@ get(4)    → 4`}</CodeBlock>
                     {name:"remove(node)",color:RED,lines:["node.prev.next = node.next","node.next.prev = node.prev"]},
                     {name:"insertFront(node)",color:GREEN,lines:["node.next = head.next","head.next.prev = node","head.next = node"]},
                   ].map(({name,color,lines})=>(
-                    <div key={name} className="flex-1 min-w-48 rounded-lg p-4" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
+                    <div key={name} className="flex-1 min-w-36 rounded-lg p-4" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
                       <code className="text-sm font-bold" style={{color}}>{name}</code>
                       <div className="mt-3 flex flex-col gap-1">
                         {lines.map(l=><code key={l} className="text-xs text-default-500">{l}</code>)}
@@ -273,9 +273,9 @@ get(4)    → 4`}</CodeBlock>
               {step&&steps.length>0&&(
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step</p>
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: ACCENT }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: ACCENT }}>
+                    {si + 1}/{steps.length}
+                  </p>
                   <div className="rounded-lg px-4 py-3 mb-4" style={{background:`${ac}12`,border:`1px solid ${ac}44`}}>
                     <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>
                     <p className="text-sm text-foreground">{step.desc}</p>

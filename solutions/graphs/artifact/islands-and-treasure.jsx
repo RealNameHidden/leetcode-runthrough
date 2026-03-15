@@ -372,14 +372,14 @@ Key reversal: instead of "room → nearest chest"
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                 <div className="flex gap-3 flex-wrap">
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>🌊 Multi-Source BFS</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Seed the BFS queue with <strong>all treasure chests at once</strong>. They all start at distance 0 and expand outward in lockstep — like simultaneous ripples in water.
                     </p>
                     <p className="text-xs text-default-400 mt-3 font-mono">queue ← all cells where grid[r][c] == 0</p>
                   </div>
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>✅ INF as Visited Flag</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Only update cells still holding <strong>INF</strong>. Once a cell is updated to a distance, BFS will never reach it again — so INF doubles as the visited check.
@@ -468,10 +468,9 @@ while queue not empty:
               {steps.length > 0 && step && (
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">Step-by-Step BFS</p>
-
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                    {si + 1}/{steps.length}
+                  </p>
 
                   {/* Status line */}
                   <p className="text-xs text-default-500 mb-4 font-mono">

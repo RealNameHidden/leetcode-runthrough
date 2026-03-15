@@ -206,14 +206,14 @@ Example 2: nums = [3, 2, 1, 0, 4]
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                 <div className="flex gap-3 flex-wrap">
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Track Farthest Reach</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Keep the <strong>maximum index we can ever reach</strong>. At each position, greedily extend it as far as possible.
                     </p>
                     <p className="text-xs text-default-400 mt-3 font-mono">maxReach = max(maxReach, i + nums[i])</p>
                   </div>
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Detect Blockage</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       If we ever step onto an index beyond <code>maxReach</code>, we're stuck — no combination of jumps can get us past this point.
@@ -292,10 +292,9 @@ Example 2: nums = [3, 2, 1, 0, 4]
               {steps.length > 0 && (
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step</p>
-
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                    {si + 1}/{steps.length}
+                  </p>
 
                   {/* Status line */}
                   <p className="text-xs text-default-500 mb-4">

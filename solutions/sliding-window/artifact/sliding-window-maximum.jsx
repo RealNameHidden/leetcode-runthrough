@@ -358,14 +358,14 @@ Window positions and max:
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                 <div className="flex gap-3 flex-wrap">
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Monotonic Deque</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       Store indices in the deque so that values at those indices are in decreasing order. The front is always the index of the current window maximum.
                     </p>
                     <p className="text-xs text-default-400 mt-3 font-mono">dq: indices, nums[dq[i]] ≥ nums[dq[i+1]]</p>
                   </div>
-                  <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                  <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                     <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Window Boundary</p>
                     <p className="text-sm leading-relaxed text-default-500">
                       When the front index falls outside the current window (equals i - k), remove it. Then add the current index after dropping any back indices whose values are smaller than the current value.
@@ -446,9 +446,9 @@ return result.stream().mapToInt(Integer::intValue).toArray();`}</CodeBlock>
               {step && (
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step Debugger</p>
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                    {si + 1}/{steps.length}
+                  </p>
 
                   <p className="text-xs text-default-500 mb-4">
                     i: <span style={{ color: GOLD }}>{step.i}</span> ·

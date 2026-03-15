@@ -143,14 +143,14 @@ when i > start && nums[i] == nums[i-1], skip.`}</CodeBlock>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Sort First</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Sort the array so duplicate values are adjacent. Then we can skip duplicate "branches" in one rule: when <code>i &gt; start</code> and <code>nums[i] == nums[i-1]</code>, skip.
                       </p>
                       <p className="text-xs text-default-400 mt-3 font-mono">Same as Subsets + sort</p>
                     </div>
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Skip Duplicate at Same Level</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         At a given recursion level, we only want to pick the first occurrence of a value. Picking the second duplicate would create the same subset as picking the first, so skip when <code>i &gt; start && nums[i] == nums[i-1]</code>.
@@ -220,9 +220,9 @@ void backtrack(int[] nums, int start, List<Integer> path, List<List<Integer>> re
                 <Card>
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">Step-by-Step Backtracking</p>
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
-                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                    </div>
+                    <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                      {si + 1}/{steps.length}
+                    </p>
                     <p className="text-xs text-default-500 mb-4">
                       {step?.phase === 'result' && (
                         <>Add to result: <V color={TEAL}>[{step.path?.join(', ')}]</V> · Total: <V color={GOLD}>{step.result?.length}</V></>

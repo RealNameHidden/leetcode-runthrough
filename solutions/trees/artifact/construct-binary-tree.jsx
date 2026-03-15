@@ -179,7 +179,7 @@ export default function App() {
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea — Two Simple Roles</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background:`${TEAL}0d`, borderColor:`${TEAL}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background:`${TEAL}0d`, borderColor:`${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color:TEAL }}>PREORDER = the tape 📼</p>
                       <div className="flex gap-1.5 mb-3">
                         {[3,9,20,15,7].map((v,i) => (
@@ -191,7 +191,7 @@ export default function App() {
                       </div>
                       <p className="text-xs leading-relaxed text-default-500">One pointer: <code style={{color:TEAL}}>nodePointer++</code> on every call. No window slicing.</p>
                     </div>
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background:`${GOLD}0d`, borderColor:`${GOLD}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background:`${GOLD}0d`, borderColor:`${GOLD}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color:GOLD }}>INORDER = the fence ✂️</p>
                       <div className="flex gap-1.5 mb-3">
                         {[9,3,15,20,7].map((v,i) => (
@@ -299,10 +299,9 @@ export default function App() {
                 <Card>
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Live Debugger</p>
-
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
-                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                    </div>
+                    <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                      {si + 1}/{steps.length}
+                    </p>
 
                     {/* context */}
                     <p className="text-xs text-default-500 mb-3">

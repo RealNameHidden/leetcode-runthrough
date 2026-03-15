@@ -248,14 +248,14 @@ Each add() returns the current maximum (1st largest)`}</CodeBlock>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Min-Heap of Size k</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Keep a min-heap of exactly <strong>k</strong> elements. The root (minimum) is always the kth largest.
                       </p>
                       <p className="text-xs text-default-400 mt-3 font-mono">heap.peek() = kth largest</p>
                     </div>
-                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Why Min-Heap?</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Sorting every time = O(n log n). Min-heap of size k = O(log k) per add(). Stream never needs to re-sort.
@@ -353,10 +353,9 @@ public int add(int val) {
                 <Card>
                   <CardBody>
                     <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Step-by-Step Execution</p>
-
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
-                      <span className="text-xs font-mono text-default-500"><strong style={{ color: TEAL }}>{si + 1}</strong> / {steps.length}</span>
-                    </div>
+                    <p className="text-xs font-mono mb-4" style={{ color: TEAL }}>
+                      {si + 1}/{steps.length}
+                    </p>
 
                     {/* Status Line */}
                     <p className="text-xs text-default-500 mb-4 font-mono">

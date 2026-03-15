@@ -201,9 +201,9 @@ Output: 6`}</CodeBlock>
               {steps.length>0&&step&&(
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Two Pointer Simulation</p>
-                  <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <span className="text-xs font-mono text-default-500"><strong style={{ color: ACCENT }}>{si + 1}</strong> / {steps.length}</span>
-                  </div>
+                  <p className="text-xs font-mono mb-4" style={{ color: ACCENT }}>
+                    {si + 1}/{steps.length}
+                  </p>
                   <div className="rounded-lg px-4 py-3 mb-4" style={{background:`${stepColor}12`,border:`1px solid ${stepColor}44`}}>
                     <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>
                     <p className="text-sm text-foreground">{step.desc}</p>
