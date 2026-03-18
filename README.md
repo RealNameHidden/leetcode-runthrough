@@ -3,7 +3,7 @@
 ## Live Artifact Archive
 **[https://realnamehidden.github.io/leetcode-runthrough/](https://realnamehidden.github.io/leetcode-runthrough/)**
 
-Interactive visualizations for algorithm problems, browsable in a No Man's Sky themed UI.
+Interactive visualizations for algorithm problems.
 
 This repository is structured to provide a comprehensive organization for various algorithmic categories commonly encountered on platforms like LeetCode.
 
