@@ -90,12 +90,12 @@ function CoffeeIcon() {
 
 function ModeSwitch({ mode, onChange }) {
   const options = [
-    { id: 'archive', label: 'Algorithms' },
-    { id: 'system-design', label: 'System Design' },
+    { id: 'archive', label: 'Algorithms', shortLabel: 'Algo' },
+    { id: 'system-design', label: 'System Design', shortLabel: 'Design' },
   ]
 
   return (
-    <div className="flex items-center rounded-full border border-divider bg-content2 p-1">
+    <div className="flex items-center rounded-full border border-divider bg-content2 p-0.5 sm:p-1">
       {options.map(option => {
         const active = mode === option.id
         return (
@@ -103,13 +103,15 @@ function ModeSwitch({ mode, onChange }) {
             key={option.id}
             type="button"
             onClick={() => onChange(option.id)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            title={option.label}
+            className={`rounded-full px-2 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs font-medium transition-colors whitespace-nowrap ${
               active
                 ? 'bg-[#cfdbf2] text-[#005bc4] dark:bg-purple-900/40 dark:text-purple-200'
                 : 'text-default-500 hover:text-foreground'
             }`}
           >
-            {option.label}
+            <span className="sm:hidden">{option.shortLabel}</span>
+            <span className="hidden sm:inline">{option.label}</span>
           </button>
         )
       })}
@@ -273,52 +275,59 @@ const categoryOrder = Object.keys(grouped).sort()
         />
       ) : (
         <>
-          {/* ── Header — fixed overlay on mobile, static on desktop ────── */}
-          <header className={`
-            fixed top-0 left-0 right-0 z-50
-            md:static md:z-auto
-            flex items-center justify-between px-4 py-3 border-b border-divider bg-content1 gap-2
-            pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:pt-3
-            transition-transform duration-300 md:translate-y-0
-            ${headerHidden ? '-translate-y-full' : 'translate-y-0'}
-          `}>
-            <div className="flex items-center gap-3">
+          {/* ── Header — fixed overlay on mobile; inner wrapper holds padding so header bg reaches top ────── */}
+          <header
+            className={`
+              nav-header
+              fixed top-0 left-0 right-0 z-50
+              md:static md:z-auto
+              flex flex-col gap-2 min-w-0
+              border-b border-divider bg-content1
+              transition-transform duration-300 md:translate-y-0
+              ${headerHidden ? '-translate-y-full' : 'translate-y-0'}
+            `}
+          >
+            <div className="flex items-center justify-between gap-2 min-w-0 px-3 py-2 sm:px-4 sm:py-3 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] md:pt-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {/* Hamburger — mobile only */}
               <button
-                className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-content2 text-default-500 transition-colors"
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-content2 text-default-500 transition-colors flex-shrink-0"
                 onClick={() => setSidebarOpen(o => !o)}
                 aria-label="Toggle navigation"
               >
                 <HamburgerIcon />
               </button>
               <button
-                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity min-w-0"
                 onClick={() => { setSelected(null); setActiveComponent(null); setSidebarOpen(false); setExpanded({}); localStorage.removeItem('lastArtifactPath') }}
                 aria-label="Go home"
               >
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
                   <BookIcon />
                 </div>
-                <div className="text-left">
-                  <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">Leetcode Archive</h1>
-                  <p className="hidden sm:block text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
+                <div className="text-left min-w-0 hidden sm:block">
+                  <h1 className="text-base font-bold leading-tight tracking-tight text-foreground truncate">Leetcode Archive</h1>
+                  <p className="text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
                 </div>
+                <span className="sm:hidden font-semibold text-foreground truncate">Archive</span>
               </button>
             </div>
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <ModeSwitch mode={mode} onChange={switchMode} />
               <Chip size="sm" variant="flat" color="primary" className="hidden sm:flex">{artifactList.length} Artifacts</Chip>
               <Chip size="sm" variant="flat" color="default" className="hidden sm:flex">{categoryOrder.length} Categories</Chip>
-              <div className="flex items-center gap-1.5 text-default-400">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-default-400">
                 <SunIcon />
                 <Switch
                   size="sm"
                   isSelected={isDark}
                   onValueChange={setIsDark}
                   aria-label="Toggle dark mode"
+                  className="scale-90 sm:scale-100 origin-center"
                 />
                 <MoonIcon />
               </div>
+            </div>
             </div>
           </header>
 

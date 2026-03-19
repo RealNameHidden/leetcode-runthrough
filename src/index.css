@@ -27,6 +27,30 @@
 html, body, #root {
   height: 100%;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Force header background to cover top of screen (removes gray bar above nav on mobile) */
+.nav-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Cover safe area or at least 24px so no strip shows above nav */
+  height: max(env(safe-area-inset-top, 0px), 24px);
+  background: #faf7f2;
+  z-index: -1;
+  pointer-events: none;
+}
+html.dark .nav-header::before {
+  background: #18181b;
+}
+@media (min-width: 768px) {
+  .nav-header::before {
+    height: 0;
+  }
 }
 
 /* ── Light mode: old-paper cream background ───────────────────────── */
