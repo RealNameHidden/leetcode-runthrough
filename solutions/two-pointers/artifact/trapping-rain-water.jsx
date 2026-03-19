@@ -7,6 +7,8 @@ import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import { Input } from "@heroui/react";
 
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
+
 const WATER="rgba(96,165,250,0.45)",WATERHI="rgba(147,197,253,0.85)";
 const LEFT="#f97316",RIGHT="#c084fc",GREEN="#4ade80",AMBER="#fbbf24",ACCENT="#38bdf8";
 
@@ -236,6 +238,7 @@ Output: 6`}</CodeBlock>
 
           <Tab key="Code" title="Code">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <ArtifactRevisedButton />
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
                 <CodeBlock>{`public int trap(int[] height) {

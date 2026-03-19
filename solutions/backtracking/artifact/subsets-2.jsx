@@ -7,6 +7,8 @@ import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import { Input } from "@heroui/react";
 
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
+
 const TEAL = "#4ecca3";
 const GOLD = "#f6c90e";
 const BLUE = "#5dade2";
@@ -289,6 +291,7 @@ void backtrack(int[] nums, int start, List<Integer> path, List<List<Integer>> re
 
           <Tab key="Code" title="Code">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <ArtifactRevisedButton />
               <Card>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Full Java Solution</p>

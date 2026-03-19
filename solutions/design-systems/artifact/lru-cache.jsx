@@ -7,6 +7,8 @@ import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import { Input } from "@heroui/react";
 
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
+
 const ACCENT="#818cf8",GREEN="#34d399",AMBER="#fbbf24",RED="#f87171",PURPLE="#c084fc";
 
 function simulate(capacity,ops){
@@ -304,6 +306,7 @@ get(4)    → 4`}</CodeBlock>
 
           <Tab key="Code" title="Code">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <ArtifactRevisedButton />
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java — HashMap + Doubly Linked List</p>
                 <CodeBlock>{`class LRUCache {

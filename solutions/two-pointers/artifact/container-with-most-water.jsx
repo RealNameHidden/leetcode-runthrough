@@ -7,6 +7,8 @@ import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import { Input } from "@heroui/react";
 
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
+
 const ACCENT="#38bdf8",TEAL="#2dd4bf",WATER="#1e6fa8",WATERHI="#38bdf850",GREEN="#4ade80",POINTER="#facc15";
 
 function simulate(heights){
@@ -201,6 +203,7 @@ export default function App(){
 
           <Tab key="Code" title="Code">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <ArtifactRevisedButton />
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
                 <CodeBlock>{`public int maxArea(int[] height) {

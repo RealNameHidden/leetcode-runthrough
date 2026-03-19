@@ -28,13 +28,29 @@ export default function App() { ... }
 
 ---
 
-## Required Tabs — ALL FOUR must be present
+## Required Tabs
+
+### Default (all other categories)
+
+**All four** tabs must be present:
 
 ```
 Problem | Intuition | Visualizer | Code
 ```
 
 Missing any tab = incomplete artifact. Every artifact must start with a Problem tab that explains the requirements.
+
+### Exception: `solutions/math-and-geometry/`
+
+Artifacts in **Math & Geometry** use **three tabs only** — **no Visualizer**:
+
+```
+Problem | Intuition | Code
+```
+
+- **Intuition** carries the extra weight: spell out **formulas** clearly (definitions, digit decompositions, bounds, known cycles or identities where useful), include the usual **algorithm template** + **key insight** callout + **complexity** with math-oriented justification, and add **worked numeric examples** or short derivations when they clarify the pattern (e.g. Floyd on the successor function, closed forms).
+- Omit **Button** / **Input** / **useEffect** step state unless a tab other than Visualizer needs them.
+- Helpers like `V` / `CodeLine` and the **Algorithm Simulation Pattern** are **optional**; do not add a Visualizer solely to satisfy the default checklist.
 
 ---
 
@@ -149,7 +165,9 @@ Two metric blocks side-by-side: TIME and SPACE.
 
 ## Tab 2 — Visualizer
 
-Must contain **in this order**:
+**Not used** for `solutions/math-and-geometry/` artifacts (see **Exception: `solutions/math-and-geometry/`** under Required Tabs).
+
+For all other categories, must contain **in this order**:
 
 ### 1. Configure Card
 - Preset buttons (3–4 named examples) that set inputs
@@ -235,6 +253,12 @@ Shows the complete result after all steps. For trees: show the full highlighted 
 ## Tab 3 — Code
 
 Must contain **in this order**:
+
+### 0. Revised button (Code tab only)
+At the **top** of the Code tab column (first child inside the same `flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10` wrapper as the cards):
+
+- `import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'`
+- `<ArtifactRevisedButton />` — small HeroUI control; do **not** duplicate a global footer. Other tabs must not include it.
 
 ### 1. Full Java Solution
 The complete, runnable Java class inside `<CodeBlock>`. Include comments on key lines.
@@ -362,7 +386,9 @@ function CodeLine({ children, highlight, annotation, annotationColor }) {
 
 ## Algorithm Simulation Pattern
 
-Simulate the algorithm **once upfront**, recording every meaningful decision into a `steps` array. Then the UI just indexes into `steps[si]`.
+**Default:** simulate the algorithm **once upfront**, recording every meaningful decision into a `steps` array. Then the UI just indexes into `steps[si]`.
+
+**`math-and-geometry/`:** simulation is optional; prefer clear formulas and traces in **Intuition** instead of a step debugger when there is no Visualizer.
 
 ```js
 function simulate(input) {
@@ -389,18 +415,19 @@ Each step object should contain everything the UI needs for that frame — no re
 Before considering an artifact done:
 
 - [ ] `export const difficulty` is set
-- [ ] All 4 tabs present: Problem, Intuition, Visualizer, Code
+- [ ] **Tabs:** default categories → all 4 tabs: Problem, Intuition, Visualizer, Code. **`math-and-geometry/`** → 3 tabs only: Problem, Intuition, Code (no Visualizer).
 - [ ] Problem: statement card + example walkthrough with input/output
 - [ ] Problem statement: method signature uses real angle brackets in data (no `&lt;`/`&gt;`), and signature row uses `flex-wrap`, code `shrink-0 min-w-0 break-all`, span `min-w-0 flex-1`
 - [ ] Intuition: dual-panel core idea, algorithm template, key insight callout, complexity
-- [ ] Visualizer: presets, inputs, step pills, status line, live code block, visual panel, prev/next, final state
-- [ ] Step counter shows `{si+1}/{steps.length}` in TEAL — no individual pill per step
-- [ ] Code: full Java solution, line-by-line breakdown, pattern tips
+- [ ] **`math-and-geometry/` Intuition:** additionally formula / math cards (definitions, bounds, cycles, worked numbers) as needed — not optional for this folder
+- [ ] Visualizer (when present): presets, inputs, step pills, status line, live code block, visual panel, prev/next, final state
+- [ ] Step counter shows `{si+1}/{steps.length}` in TEAL — no individual pill per step (Visualizer only)
+- [ ] Code: full Java solution, line-by-line breakdown, pattern tips; **Revised** button at top of Code tab
 - [ ] Colors only use TEAL / GOLD / BLUE / RED constants — no hardcoded hex elsewhere
 - [ ] CSS variables used for all theme-dependent colors (backgrounds, borders, text)
-- [ ] Steps array simulated once in a pure function, not recomputed on render
-- [ ] Each CodeLine in the live debugger has both a highlighted state AND an annotation showing the live value
-- [ ] SVGs use `width="100%"` with a `viewBox` — never hardcode a fixed pixel width on `<svg>`
+- [ ] Steps array simulated once in a pure function, not recomputed on render (Visualizer only)
+- [ ] Each CodeLine in the live debugger has both a highlighted state AND an annotation showing the live value (Visualizer only)
+- [ ] SVGs use `width="100%"` with a `viewBox` — never hardcode a fixed pixel width on `<svg>` (Visualizer only)
 - [ ] Visualizers that grow wide (Gantt, tables) are wrapped in `overflow-x-auto`
 - [ ] Two-column flex panels use `flex-wrap` so they stack on mobile
 - [ ] No fixed `min-w` values wider than 160px on flex children

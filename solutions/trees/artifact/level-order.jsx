@@ -6,6 +6,8 @@ import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
+
 const INDIGO="#818cf8",CYAN="#67e8f9",YELLOW="#fbbf24",GREEN="#4ade80",VIOLET="#a78bfa",RED="#f87171";
 const LEVEL_COLORS=[
   {fill:`${INDIGO}28`,stroke:INDIGO,text:INDIGO},
@@ -285,6 +287,7 @@ for (int i = 0; i < levelSize; i++) {
 
           <Tab key="Code" title="Code">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <ArtifactRevisedButton />
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Java Solution</p>
                 <CodeBlock>{`public List<List<Integer>> levelOrder(TreeNode root) {

@@ -3,6 +3,7 @@ import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/reac
 import { motion } from 'framer-motion'
 import SystemDesign from './SystemDesign'
 import RoadmapGraph from './RoadmapGraph'
+import { ArtifactRevisionProvider } from './ArtifactRevisedButton'
 
 // Auto-discover all artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -472,39 +473,22 @@ const categoryOrder = Object.keys(grouped).sort()
                 </div>
               ) : ActiveComponent ? (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
-                    <Suspense fallback={
-                      <div className="flex items-center justify-center p-12">
-                        <Spinner label="Rendering..." />
-                      </div>
-                    }>
-                      <ActiveComponent />
-                    </Suspense>
-                  </div>
-                  <div className="flex-shrink-0 border-t border-divider bg-content1/80 backdrop-blur-sm px-4 py-3 flex items-center justify-center">
-                    <motion.button
-                      type="button"
-                      onClick={logRevision}
-                      disabled={selected?.path ? !canLogRevisionToday(selected.path) : true}
-                      className="select-none flex items-center gap-2 px-5 py-2.5 rounded-2xl font-medium text-sm shadow-lg border-2 border-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 disabled:cursor-not-allowed"
-                      style={{
-                        background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%)',
-                        color: 'hsl(var(--primary-foreground))',
-                        boxShadow: '0 4px 14px hsl(var(--primary) / 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.2)',
-                      }}
-                    >
-                      <span className="text-base">{selected?.path && !canLogRevisionToday(selected.path) ? '✅' : '📖'}</span>
-                      <span>Revised!</span>
-                      {getRevisionCount(selected?.path) > 0 && (
-                        <span className="min-w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-xs font-bold px-1">
-                          {getRevisionCount(selected.path)}
-                        </span>
-                      )}
-                    </motion.button>
-                    {selected?.path && !canLogRevisionToday(selected.path) && (
-                      <span className="text-xs text-default-400 ml-2">Already revised today</span>
-                    )}
-                  </div>
+                  <ArtifactRevisionProvider
+                    artifactPath={selected?.path ?? null}
+                    revisionCount={selected?.path ? getRevisionCount(selected.path) : 0}
+                    canLogToday={selected?.path ? canLogRevisionToday(selected.path) : false}
+                    onLog={logRevision}
+                  >
+                    <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
+                      <Suspense fallback={
+                        <div className="flex items-center justify-center p-12">
+                          <Spinner label="Rendering..." />
+                        </div>
+                      }>
+                        <ActiveComponent />
+                      </Suspense>
+                    </div>
+                  </ArtifactRevisionProvider>
                 </div>
               ) : null}
             </main>
