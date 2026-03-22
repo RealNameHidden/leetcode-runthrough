@@ -40,7 +40,7 @@ export default function App() {
                     ].map(({ sig, desc }) => (
                       <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
                         <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
-                        <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
+                        <span className="text-xs text-default-500 leading-relaxed min-w-[6rem] flex-1">{desc}</span>
                       </div>
                     ))}
                   </div>

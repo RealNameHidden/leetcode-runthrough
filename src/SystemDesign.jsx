@@ -600,7 +600,7 @@ function CoreConceptCard({ concept, index }) {
 }
 
 // ── Main Component ───────────────────────────────────────────────────
-export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive, supportUrl }) {
+export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitchToArchive, supportUrl, hideHeader = false }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const [patternSearch, setPatternSearch] = useState("");
 
@@ -618,7 +618,7 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
   return (
     <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
-      <div className="border-b border-divider px-6 py-4 flex items-center justify-between gap-3 bg-content1 flex-shrink-0 flex-wrap">
+      {!hideHeader && <div className="border-b border-divider px-6 py-4 flex items-center justify-between gap-3 bg-content1 flex-shrink-0 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap min-w-0">
           <span className="text-xl">🏗️</span>
           <div>
@@ -639,7 +639,7 @@ export default function SystemDesign({ isDark = false, onDarkModeChange, onSwitc
             <MoonIcon />
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Content */}
       <div className="flex-1 overflow-auto">

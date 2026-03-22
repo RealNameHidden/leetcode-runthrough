@@ -5,9 +5,13 @@ import SystemDesign from './SystemDesign'
 import RoadmapGraph from './RoadmapGraph'
 import { ArtifactRevisionProvider } from './ArtifactRevisedButton'
 
-// Auto-discover all artifact JSX files
+// Auto-discover algorithm artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
 const artifactDifficulty = import.meta.glob('../solutions/**/artifact/*.jsx', { eager: true, import: 'difficulty' })
+
+// Auto-discover case study JSX files
+const caseStudyModules = import.meta.glob('../case-studies/**/artifact/*.jsx')
+const caseStudyDifficulty = import.meta.glob('../case-studies/**/artifact/*.jsx', { eager: true, import: 'difficulty' })
 
 const difficultyStyle = {
   Easy:   { letter: 'e', bg: 'bg-green-200 text-green-700' },
@@ -18,24 +22,34 @@ const difficultyStyle = {
 // Replace this with your real support link later.
 const SUPPORT_URL = 'https://buymeacoffee.com/your-link-here'
 
-const artifactList = Object.entries(artifactModules).map(([path, loader]) => {
-  const parts = path.split('/')
-  const artifactIdx = parts.indexOf('artifact')
-  const category = parts[artifactIdx - 1]
-  const filename = parts[parts.length - 1].replace('.jsx', '')
-  const name = filename
-    .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-  const difficulty = artifactDifficulty[path] ?? null
-  return { path, loader, category, filename, name, difficulty }
-})
+function buildList(modules, difficulties) {
+  return Object.entries(modules).map(([path, loader]) => {
+    const parts = path.split('/')
+    const artifactIdx = parts.indexOf('artifact')
+    const category = parts[artifactIdx - 1]
+    const filename = parts[parts.length - 1].replace('.jsx', '')
+    const name = filename
+      .split('-')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+    const difficulty = difficulties[path] ?? null
+    return { path, loader, category, filename, name, difficulty }
+  })
+}
 
-const grouped = artifactList.reduce((acc, a) => {
-  if (!acc[a.category]) acc[a.category] = []
-  acc[a.category].push(a)
-  return acc
-}, {})
+const artifactList = buildList(artifactModules, artifactDifficulty)
+const caseStudyList = buildList(caseStudyModules, caseStudyDifficulty)
+
+function buildGrouped(list) {
+  return list.reduce((acc, a) => {
+    if (!acc[a.category]) acc[a.category] = []
+    acc[a.category].push(a)
+    return acc
+  }, {})
+}
+
+const grouped = buildGrouped(artifactList)
+const sdGrouped = buildGrouped(caseStudyList)
 
 function formatCategory(cat) {
   return cat.replace(/_/g, ' & ').replace(/-/g, ' ')
@@ -89,6 +103,14 @@ function CoffeeIcon() {
   )
 }
 
+function SearchIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-default-400 flex-shrink-0">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  )
+}
+
 function ModeSwitch({ mode, onChange }) {
   const options = [
     { id: 'archive', label: 'Algorithms', shortLabel: 'Algo' },
@@ -123,9 +145,20 @@ function ModeSwitch({ mode, onChange }) {
 export default function App() {
   const [isDark, setIsDark] = useState(false)
   const [mode, setMode] = useState('archive')
+
+  // Algorithm artifact state
   const [selected, setSelected] = useState(null)
   const [ActiveComponent, setActiveComponent] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  // Case study state
+  const [sdSelected, setSdSelected] = useState(null)
+  const [sdActiveComponent, setSdActiveComponent] = useState(null)
+  const [sdLoading, setSdLoading] = useState(false)
+  const [sdSearch, setSdSearch] = useState('')
+  const [sdExpanded, setSdExpanded] = useState({})
+
+  // Shared sidebar/search state
   const [expanded, setExpanded] = useState({})
   const [search, setSearch] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -202,10 +235,6 @@ export default function App() {
     }
   }, [])
 
-  function openSystemDesign() {
-    switchMode('system-design')
-  }
-
   function logRevision() {
     if (!selected?.path) return
     if (!canLogRevisionToday(selected.path)) return
@@ -237,8 +266,28 @@ export default function App() {
     }
   }
 
+  async function openCaseStudy(cs) {
+    if (sdSelected?.path === cs.path) { setSidebarOpen(false); return }
+    setSdSelected(cs)
+    setSdActiveComponent(null)
+    setSdLoading(true)
+    setSidebarOpen(false)
+    try {
+      const mod = await cs.loader()
+      setSdActiveComponent(() => mod.default)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSdLoading(false)
+    }
+  }
+
   function toggleCategory(cat) {
     setExpanded(prev => ({ ...prev, [cat]: !prev[cat] }))
+  }
+
+  function toggleSdCategory(cat) {
+    setSdExpanded(prev => ({ ...prev, [cat]: !prev[cat] }))
   }
 
   function onCategoryClick(categoryId) {
@@ -249,8 +298,7 @@ export default function App() {
     }, 50)
   }
 
-const categoryOrder = Object.keys(grouped).sort()
-
+  const categoryOrder = Object.keys(grouped).sort()
   const query = search.trim().toLowerCase()
   const filteredGrouped = query
     ? Object.fromEntries(
@@ -260,23 +308,193 @@ const categoryOrder = Object.keys(grouped).sort()
       )
     : grouped
   const filteredCategories = query ? Object.keys(filteredGrouped) : categoryOrder
+
+  const sdCategoryOrder = Object.keys(sdGrouped).sort()
+  const sdQuery = sdSearch.trim().toLowerCase()
+  const sdFilteredGrouped = sdQuery
+    ? Object.fromEntries(
+        sdCategoryOrder
+          .map(cat => [cat, sdGrouped[cat].filter(a => a.name.toLowerCase().includes(sdQuery))])
+          .filter(([, items]) => items.length > 0)
+      )
+    : sdGrouped
+  const sdFilteredCategories = sdQuery ? Object.keys(sdFilteredGrouped) : sdCategoryOrder
+
   const quickStartArtifact =
     artifactList.find(artifact => artifact.filename === 'two-sum') ??
     artifactList[0] ??
     null
 
+  const SdActive = sdActiveComponent
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {mode === 'system-design' ? (
-        <SystemDesign
-          isDark={isDark}
-          onDarkModeChange={setIsDark}
-          onSwitchToArchive={() => switchMode('archive')}
-          supportUrl={SUPPORT_URL}
-        />
+        <>
+          {/* ── SD Header ─────────────────────────────────────────────── */}
+          <header className="fixed top-0 left-0 right-0 z-50 md:static md:z-auto flex flex-col gap-2 min-w-0 border-b border-divider bg-content1">
+            <div className="flex items-center justify-between gap-2 min-w-0 px-3 py-2 sm:px-4 sm:py-3 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] md:pt-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <button
+                  className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-content2 text-default-500 transition-colors flex-shrink-0"
+                  onClick={() => setSidebarOpen(o => !o)}
+                  aria-label="Toggle navigation"
+                >
+                  <HamburgerIcon />
+                </button>
+                <button
+                  className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity min-w-0"
+                  onClick={() => { setSdSelected(null); setSdActiveComponent(null); setSidebarOpen(false) }}
+                  aria-label="System Design home"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                    <BookIcon />
+                  </div>
+                  <div className="text-left min-w-0 hidden sm:block">
+                    <h1 className="text-base font-bold leading-tight tracking-tight text-foreground truncate">System Design</h1>
+                    <p className="text-xs text-default-400 leading-none">Case Studies & Reference</p>
+                  </div>
+                  <span className="sm:hidden font-semibold text-foreground truncate">Design</span>
+                </button>
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                <ModeSwitch mode={mode} onChange={switchMode} />
+                <Chip size="sm" variant="flat" color="primary" className="hidden sm:flex">{caseStudyList.length} Case Studies</Chip>
+                <div className="flex items-center gap-1 sm:gap-1.5 text-default-400">
+                  <SunIcon />
+                  <Switch
+                    size="sm"
+                    isSelected={isDark}
+                    onValueChange={setIsDark}
+                    aria-label="Toggle dark mode"
+                    className="scale-90 sm:scale-100 origin-center"
+                  />
+                  <MoonIcon />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SD Body ─────────────────────────────────────────────── */}
+          <div className="flex flex-1 overflow-hidden relative pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0">
+            {sidebarOpen && (
+              <div className="fixed inset-0 z-20 bg-black/40 md:hidden" onClick={() => setSidebarOpen(false)} />
+            )}
+
+            {/* ── SD Sidebar ─────────────────────────────────────────── */}
+            <aside className={`
+              fixed md:relative left-0 bottom-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] md:inset-y-0 md:top-auto z-30
+              w-64 flex-shrink-0 border-r border-divider bg-content1 flex flex-col
+              transition-transform duration-300 ease-in-out
+              ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            `}>
+              <div className="px-4 pt-2.5 pb-2 border-b border-divider flex-shrink-0 flex flex-col gap-2">
+                <p className="text-xs font-semibold text-default-400 uppercase tracking-wider">Case Studies</p>
+                <Input
+                  size="sm"
+                  placeholder="Search case studies..."
+                  value={sdSearch}
+                  onValueChange={setSdSearch}
+                  isClearable
+                  onClear={() => setSdSearch('')}
+                  startContent={<SearchIcon />}
+                />
+              </div>
+              <ScrollShadow className="flex-1 overflow-y-auto pt-3 pb-2 px-2">
+                {sdFilteredCategories.length === 0 && (
+                  <p className="text-xs text-default-400 text-center py-6">No results for "{sdSearch}"</p>
+                )}
+                {sdFilteredCategories.map(cat => {
+                  const isOpen = sdQuery ? true : sdExpanded[cat] === true
+                  return (
+                    <div key={cat} id={`sdcat-${cat}`} className="mb-0.5">
+                      <button
+                        onClick={() => toggleSdCategory(cat)}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left hover:bg-content2 transition-colors"
+                      >
+                        <span className={`text-[10px] text-default-400 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}>▶</span>
+                        <span className="text-sm font-medium text-default-600 flex-1 text-left">{formatCategory(cat)}</span>
+                        <Chip size="sm" variant="flat" className="text-[10px] h-5 min-w-6">{sdGrouped[cat].length}</Chip>
+                      </button>
+                      {isOpen && (
+                        <div className="ml-3 mt-0.5 flex flex-col gap-0.5 border-l-2 border-divider pl-3 pb-1">
+                          {sdFilteredGrouped[cat].map(cs => (
+                            <motion.button
+                              key={cs.path}
+                              onClick={() => openCaseStudy(cs)}
+                              whileTap={{ scale: 0.95 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                                sdSelected?.path === cs.path
+                                  ? 'bg-[#cfdbf2] dark:bg-purple-900/40 text-[#005bc4] dark:text-purple-200 font-medium shadow-sm dark:shadow-purple-900/50'
+                                  : 'text-default-500 hover:bg-content2 hover:text-foreground'
+                              }`}
+                            >
+                              <span className="flex items-center justify-between gap-1">
+                                <span className="truncate">{cs.name}</span>
+                                {cs.difficulty && difficultyStyle[cs.difficulty] && (
+                                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${difficultyStyle[cs.difficulty].bg}`}>
+                                    {difficultyStyle[cs.difficulty].letter}
+                                  </span>
+                                )}
+                              </span>
+                            </motion.button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+                <div className="px-2 pt-4 pb-2">
+                  <div className="flex flex-col items-center gap-1.5 border-t border-divider pt-3">
+                    <p className="text-[10px] text-default-300 text-center">System Design Patterns</p>
+                    <a
+                      href={SUPPORT_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-default-400 transition-colors hover:text-foreground"
+                    >
+                      <CoffeeIcon />
+                      Buy me a coffee
+                    </a>
+                  </div>
+                </div>
+              </ScrollShadow>
+            </aside>
+
+            {/* ── SD Main Content ─────────────────────────────────────── */}
+            <main className="flex-1 overflow-hidden flex flex-col bg-background">
+              {sdLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <Spinner size="lg" label="Loading case study..." color="primary" />
+                </div>
+              ) : SdActive ? (
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center p-12">
+                        <Spinner label="Rendering..." />
+                      </div>
+                    }>
+                      <SdActive />
+                    </Suspense>
+                  </div>
+                </div>
+              ) : (
+                <SystemDesign
+                  hideHeader
+                  isDark={isDark}
+                  onDarkModeChange={setIsDark}
+                  onSwitchToArchive={() => switchMode('archive')}
+                  supportUrl={SUPPORT_URL}
+                />
+              )}
+            </main>
+          </div>
+        </>
       ) : (
         <>
-          {/* ── Header — fixed overlay on mobile; inner wrapper holds padding so header bg reaches top ────── */}
+          {/* ── Archive Header ─────────────────────────────────────────── */}
           <header
             className={`
               nav-header
@@ -332,11 +550,11 @@ const categoryOrder = Object.keys(grouped).sort()
             </div>
           </header>
 
-          {/* ── Body — offset on mobile to sit below fixed header ───────── */}
+          {/* ── Archive Body ─────────────────────────────────────────── */}
           <div
             className={`
               flex flex-1 overflow-hidden relative transition-[padding] duration-300 md:pt-0
-              ${headerHidden ? 'pt-0' : 'pt-[calc(6rem+env(safe-area-inset-top,0px))]'}
+              ${headerHidden ? 'pt-0' : 'pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'}
             `}
           >
 
@@ -350,7 +568,7 @@ const categoryOrder = Object.keys(grouped).sort()
 
             {/* ── Sidebar ─────────────────────────────────────────────── */}
             <aside className={`
-              fixed md:relative left-0 bottom-0 top-[calc(6rem+env(safe-area-inset-top,0px))] md:inset-y-0 md:top-auto z-30
+              fixed md:relative left-0 bottom-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] md:inset-y-0 md:top-auto z-30
               w-64 flex-shrink-0 border-r border-divider bg-content1 flex flex-col
               transition-transform duration-300 ease-in-out
               ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
@@ -364,11 +582,7 @@ const categoryOrder = Object.keys(grouped).sort()
                   onValueChange={setSearch}
                   isClearable
                   onClear={() => setSearch('')}
-                  startContent={
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-default-400 flex-shrink-0">
-                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                  }
+                  startContent={<SearchIcon />}
                 />
               </div>
               <ScrollShadow className="flex-1 overflow-y-auto pt-3 pb-2 px-2">
