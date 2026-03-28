@@ -470,7 +470,7 @@ export default function App() {
                 </div>
               ) : SdActive ? (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
+                  <div className="flex-1 overflow-auto pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]" onScroll={handleContentScroll}>
                     <Suspense fallback={
                       <div className="flex items-center justify-center p-12">
                         <Spinner label="Rendering..." />
@@ -693,7 +693,7 @@ export default function App() {
                     canLogToday={selected?.path ? canLogRevisionToday(selected.path) : false}
                     onLog={logRevision}
                   >
-                    <div className="flex-1 overflow-auto pb-2" onScroll={handleContentScroll}>
+                    <div className="flex-1 overflow-auto pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]" onScroll={handleContentScroll}>
                       <Suspense fallback={
                         <div className="flex items-center justify-center p-12">
                           <Spinner label="Rendering..." />
