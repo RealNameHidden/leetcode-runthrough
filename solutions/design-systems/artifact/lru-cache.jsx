@@ -43,8 +43,12 @@ function simulate(capacity,ops){
 }
 
 function parseOps(str){
-  return str.split(",").map(s=>s.trim()).filter(Boolean).map(token=>{
-    const pm=token.match(/^put\((\d+),(\d+)\)$/i);
+  const tokens=[];
+  const re=/(?:put\(\d+\s*,\s*\d+\)|get\(\d+\))/gi;
+  let m;
+  while((m=re.exec(str))!==null) tokens.push(m[0]);
+  return tokens.map(token=>{
+    const pm=token.match(/^put\((\d+)\s*,\s*(\d+)\)$/i);
     if(pm)return{type:"put",key:parseInt(pm[1]),val:parseInt(pm[2])};
     const gm=token.match(/^get\((\d+)\)$/i);
     if(gm)return{type:"get",key:parseInt(gm[1])};

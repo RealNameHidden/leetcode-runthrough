@@ -152,7 +152,7 @@ export default function App() {
                     ].map(({ sig, desc }) => (
                       <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
                         <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
-                        <span className="text-xs text-default-500 leading-relaxed min-w-[6rem] flex-1">{desc}</span>
+                        <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
                       </div>
                     ))}
                   </div>
@@ -178,14 +178,14 @@ We recurse with the same index to allow reusing a candidate.`}</CodeBlock>
                 <CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
                   <div className="flex gap-3 flex-wrap">
-                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
+                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${TEAL}0d`, borderColor: `${TEAL}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: TEAL }}>Reuse with same index</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         Unlike Subsets, we may use the same candidate many times. So when we recurse after adding <code>candidates[i]</code>, pass <code>i</code> (not <code>i + 1</code>) as the next start index so we can pick it again.
                       </p>
                       <p className="text-xs text-default-400 mt-3 font-mono">backtrack(..., i) not i+1</p>
                     </div>
-                    <div className="flex-1 min-w-36 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
+                    <div className="flex-1 min-w-48 rounded-xl p-4 border" style={{ background: `${GOLD}0d`, borderColor: `${GOLD}33` }}>
                       <p className="text-xs font-bold mb-3" style={{ color: GOLD }}>Base case and prune</p>
                       <p className="text-sm leading-relaxed text-default-500">
                         If <code>currentSum == target</code>, add a copy of the combination to result. If <code>currentSum &gt; target</code>, return immediately (prune) — no need to explore further.
