@@ -1,3 +1,4 @@
 node_modules/
 dist/
 .quality-check-log.md
+.env.local

@@ -2,6 +2,7 @@ export const difficulty = 'Medium'
 
 import { useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton';
 import { Card, CardBody } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
@@ -349,7 +350,7 @@ At 100M rows × ~600 bytes avg = ~60GB — comfortably fits on a single Postgres
             {/* ── Tab 3: Tradeoffs ── */}
             <Tab key="tradeoffs" title="Tradeoffs">
               <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
-
+                <ArtifactRevisedButton />
                 <Card><CardBody>
                   <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Key Design Decisions</p>
                   <div className="flex flex-col divide-y divide-divider">

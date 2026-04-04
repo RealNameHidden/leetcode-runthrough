@@ -2,6 +2,7 @@ export const difficulty = 'Medium';
 
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
+import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton';
 import { Tabs, Tab } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -461,6 +462,7 @@ function hasCycle(course):
         {/* ──────────────────────────────────────────────────────────── */}
         <Tab key="code" title="Code">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+            <ArtifactRevisedButton />
             <Card>
               <CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Full Solution</p>

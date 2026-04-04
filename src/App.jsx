@@ -1,9 +1,11 @@
 import { useState, Suspense, useEffect, useRef } from 'react'
-import { Button, Switch, Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
+import { Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
 import { motion } from 'framer-motion'
 import SystemDesign from './SystemDesign'
 import RoadmapGraph from './RoadmapGraph'
 import { ArtifactRevisionProvider } from './ArtifactRevisedButton'
+import { AuthButton } from './AuthButton'
+import { useRevisions } from './useRevisions'
 
 // Auto-discover algorithm artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -54,25 +56,6 @@ const sdGrouped = buildGrouped(caseStudyList)
 function formatCategory(cat) {
   return cat.replace(/_/g, ' & ').replace(/-/g, ' ')
     .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-}
-
-function SunIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-    </svg>
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
-  )
 }
 
 function BookIcon() {
@@ -162,30 +145,7 @@ export default function App() {
   const [expanded, setExpanded] = useState({})
   const [search, setSearch] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [revisions, setRevisions] = useState(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem('artifact-revisions') || '{}')
-      const out = {}
-      for (const [path, val] of Object.entries(raw)) {
-        out[path] = typeof val === 'object' && val != null && 'count' in val
-          ? { count: val.count, lastDate: val.lastDate || '' }
-          : { count: Number(val) || 0, lastDate: '' }
-      }
-      return out
-    } catch { return {} }
-  })
-
-  function getRevisionCount(path) {
-    const v = revisions[path]
-    return typeof v === 'object' && v != null ? v.count : (Number(v) || 0)
-  }
-
-  function canLogRevisionToday(path) {
-    const today = new Date().toISOString().slice(0, 10)
-    const v = revisions[path]
-    const lastDate = typeof v === 'object' && v != null ? v.lastDate : ''
-    return lastDate !== today
-  }
+  const { revisions, getRevisionCount, canLogRevisionToday, logRevision, resetRevisions } = useRevisions()
   const [headerHidden, setHeaderHidden] = useState(false)
   const lastScrollY = useRef(0)
   const headerToggleScrollY = useRef(0)
@@ -235,17 +195,9 @@ export default function App() {
     }
   }, [])
 
-  function logRevision() {
+  function handleLogRevision() {
     if (!selected?.path) return
-    if (!canLogRevisionToday(selected.path)) return
-    const today = new Date().toISOString().slice(0, 10)
-    setRevisions(prev => {
-      const v = prev[selected.path]
-      const count = (typeof v === 'object' && v != null ? v.count : Number(v) || 0) + 1
-      const next = { ...prev, [selected.path]: { count, lastDate: today } }
-      localStorage.setItem('artifact-revisions', JSON.stringify(next))
-      return next
-    })
+    logRevision(selected.path)
   }
 
   async function openArtifact(artifact) {
@@ -357,20 +309,9 @@ export default function App() {
                   <span className="sm:hidden font-semibold text-foreground truncate">Design</span>
                 </button>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <ModeSwitch mode={mode} onChange={switchMode} />
-                <Chip size="sm" variant="flat" color="primary" className="hidden sm:flex">{caseStudyList.length} Case Studies</Chip>
-                <div className="flex items-center gap-1 sm:gap-1.5 text-default-400">
-                  <SunIcon />
-                  <Switch
-                    size="sm"
-                    isSelected={isDark}
-                    onValueChange={setIsDark}
-                    aria-label="Toggle dark mode"
-                    className="scale-90 sm:scale-100 origin-center"
-                  />
-                  <MoonIcon />
-                </div>
+                <AuthButton isDark={isDark} onDarkChange={setIsDark} />
               </div>
             </div>
           </header>
@@ -470,15 +411,22 @@ export default function App() {
                 </div>
               ) : SdActive ? (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-auto pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]" onScroll={handleContentScroll}>
-                    <Suspense fallback={
-                      <div className="flex items-center justify-center p-12">
-                        <Spinner label="Rendering..." />
-                      </div>
-                    }>
-                      <SdActive />
-                    </Suspense>
-                  </div>
+                  <ArtifactRevisionProvider
+                    artifactPath={sdSelected?.path ?? null}
+                    revisionCount={sdSelected?.path ? getRevisionCount(sdSelected.path) : 0}
+                    canLogToday={sdSelected?.path ? canLogRevisionToday(sdSelected.path) : false}
+                    onLog={() => sdSelected?.path && logRevision(sdSelected.path)}
+                  >
+                    <div className="flex-1 overflow-auto pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]" onScroll={handleContentScroll}>
+                      <Suspense fallback={
+                        <div className="flex items-center justify-center p-12">
+                          <Spinner label="Rendering..." />
+                        </div>
+                      }>
+                        <SdActive />
+                      </Suspense>
+                    </div>
+                  </ArtifactRevisionProvider>
                 </div>
               ) : (
                 <SystemDesign
@@ -525,27 +473,15 @@ export default function App() {
                   <BookIcon />
                 </div>
                 <div className="text-left min-w-0 hidden sm:block">
-                  <h1 className="text-base font-bold leading-tight tracking-tight text-foreground truncate">Leetcode Archive</h1>
+                  <h1 className="text-base font-bold leading-tight tracking-tight text-foreground truncate">Memoized Archive</h1>
                   <p className="text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
                 </div>
                 <span className="sm:hidden font-semibold text-foreground truncate">Archive</span>
               </button>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <ModeSwitch mode={mode} onChange={switchMode} />
-              <Chip size="sm" variant="flat" color="primary" className="hidden sm:flex">{artifactList.length} Artifacts</Chip>
-              <Chip size="sm" variant="flat" color="default" className="hidden sm:flex">{categoryOrder.length} Categories</Chip>
-              <div className="flex items-center gap-1 sm:gap-1.5 text-default-400">
-                <SunIcon />
-                <Switch
-                  size="sm"
-                  isSelected={isDark}
-                  onValueChange={setIsDark}
-                  aria-label="Toggle dark mode"
-                  className="scale-90 sm:scale-100 origin-center"
-                />
-                <MoonIcon />
-              </div>
+              <AuthButton isDark={isDark} onDarkChange={setIsDark} />
             </div>
             </div>
           </header>
@@ -633,13 +569,12 @@ export default function App() {
                 })}
                 <div className="px-2 pt-4 pb-2">
                   <div className="flex flex-col items-center gap-1.5 border-t border-divider pt-3">
-                    <p className="text-[10px] text-default-300 text-center">Leetcode Archive v2.0</p>
+                    <p className="text-[10px] text-default-300 text-center">Memoized Archive v2.0</p>
                     <button
                       className="text-[10px] text-default-300 hover:text-red-400 transition-colors"
                       onClick={() => {
                         if (confirm('Reset all revision progress?')) {
-                          setRevisions({})
-                          localStorage.removeItem('artifact-revisions')
+                          resetRevisions()
                         }
                       }}
                     >
@@ -691,7 +626,7 @@ export default function App() {
                     artifactPath={selected?.path ?? null}
                     revisionCount={selected?.path ? getRevisionCount(selected.path) : 0}
                     canLogToday={selected?.path ? canLogRevisionToday(selected.path) : false}
-                    onLog={logRevision}
+                    onLog={handleLogRevision}
                   >
                     <div className="flex-1 overflow-auto pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]" onScroll={handleContentScroll}>
                       <Suspense fallback={

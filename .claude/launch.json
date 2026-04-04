@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "leetcode-runthrough",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "PATH=/opt/homebrew/bin:$PATH npx vite --port 5173"],
       "port": 5173
     }
   ]
