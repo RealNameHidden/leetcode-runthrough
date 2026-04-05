@@ -476,7 +476,7 @@ export default function App() {
                 </div>
                 <div className="text-left min-w-0 hidden sm:block">
                   <h1 className="text-base font-bold leading-tight tracking-tight text-foreground truncate">Memoized Archive</h1>
-                  <p className="text-xs text-default-400 leading-none">Interactive Algorithm Visualizations</p>
+                  <p className="text-xs text-default-400 leading-none">Visualize once. Never forget.</p>
                 </div>
                 <span className="sm:hidden font-semibold text-foreground truncate">Archive</span>
               </button>
