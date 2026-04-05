@@ -1,7 +1,7 @@
 export const difficulty = 'Medium'
 
 import { useState } from "react";
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton';
 import { Card, CardBody } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -175,7 +175,7 @@ export default function App() {
 
       <div className="flex-1 overflow-auto">
         <div className="p-4 max-w-4xl mx-auto">
-          <Tabs aria-label="Rate Limiter" color="primary" variant="underlined">
+          <ArtifactTabs>
 
             {/* ── Tab 0: Requirements ── */}
             <Tab key="requirements" title="Requirements">
@@ -523,7 +523,7 @@ Monitor Redis connection health separately with alerting so outages are caught i
               </div>
             </Tab>
 
-          </Tabs>
+          </ArtifactTabs>
         </div>
       </div>
     </div>

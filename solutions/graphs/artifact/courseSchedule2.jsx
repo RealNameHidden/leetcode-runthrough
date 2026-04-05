@@ -3,7 +3,7 @@ export const difficulty = 'Medium';
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
 import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -200,7 +200,7 @@ export default function App() {
         <Chip size="sm" color="primary" variant="flat">Graph · Topological Sort</Chip>
       </div>
 
-      <Tabs className="flex-1 px-6 py-4" isVertical={false}>
+      <ArtifactTabs className="flex-1 px-6 py-4">
         {/* ── TAB 0: PROBLEM ─────────────────────────────────────── */}
         <Tab key="problem" title="Problem">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
@@ -566,7 +566,7 @@ public class CourseSchedule2 {
             </CardBody></Card>
           </div>
         </Tab>
-      </Tabs>
+      </ArtifactTabs>
     </div>
   );
 }

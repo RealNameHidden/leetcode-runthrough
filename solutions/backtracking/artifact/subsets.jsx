@@ -1,7 +1,7 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -73,7 +73,6 @@ const PRESETS = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("Problem");
   const [input, setInput] = useState("1,2,3");
   const [steps, setSteps] = useState([]);
   const [si, setSi] = useState(0);
@@ -98,7 +97,7 @@ export default function App() {
       </div>
 
       <div className="px-4 pt-3">
-        <Tabs selectedKey={tab} onSelectionChange={key => setTab(String(key))} variant="underlined" color="primary" size="sm">
+        <ArtifactTabs>
 
           <Tab key="Problem" title="Problem">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
@@ -343,7 +342,7 @@ class Solution {
             </div>
           </Tab>
 
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );

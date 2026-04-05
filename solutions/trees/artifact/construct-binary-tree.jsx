@@ -1,7 +1,7 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -165,9 +165,7 @@ export default function App() {
 
       {/* Tabs */}
       <div className="px-4 pt-3">
-        <Tabs
-          selectedKey={tab}
-          onSelectionChange={key => setTab(String(key))}
+        <ArtifactTabs>
           variant="underlined"
           color="primary"
           size="sm"
@@ -475,7 +473,7 @@ export default function App() {
             </div>
           </Tab>
 
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );

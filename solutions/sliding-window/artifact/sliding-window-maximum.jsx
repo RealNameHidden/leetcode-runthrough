@@ -1,7 +1,7 @@
 export const difficulty = 'Hard'
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -272,7 +272,6 @@ function VisPanel({ nums, step, k, finalMode }) {
 }
 
 export default function App() {
-  const [tab, setTab] = useState("Problem");
   const [numsStr, setNumsStr] = useState("1,3,-1,-3,5,3,6,7");
   const [kStr, setKStr] = useState("3");
   const [steps, setSteps] = useState([]);
@@ -319,7 +318,7 @@ export default function App() {
       </div>
 
       <div className="px-4 pt-3">
-        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(String(key))} variant="underlined" color="primary" size="sm">
+        <ArtifactTabs>
           <Tab key="Problem" title="Problem">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
@@ -598,7 +597,7 @@ public class SlidingWindowMaximum {
               </CardBody></Card>
             </div>
           </Tab>
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 export const difficulty = 'Easy'
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -186,7 +186,6 @@ const PRESETS = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("Problem");
   const [stonesStr, setStonesStr] = useState("2,7,4,1,8,1");
   const [steps, setSteps] = useState([]);
   const [si, setSi] = useState(0);
@@ -212,7 +211,7 @@ export default function App() {
       </div>
 
       <div className="px-4 pt-3">
-        <Tabs selectedKey={tab} onSelectionChange={k => setTab(String(k))} variant="underlined" color="primary" size="sm">
+        <ArtifactTabs>
 
           {/* PROBLEM TAB */}
           <Tab key="Problem" title="Problem">
@@ -522,7 +521,7 @@ return maxHeap.isEmpty() ? 0 : maxHeap.peek();`}</CodeBlock>
             </div>
           </Tab>
 
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );

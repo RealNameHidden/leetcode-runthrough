@@ -1,7 +1,7 @@
 export const difficulty = 'Easy';
 import { useState } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
@@ -13,7 +13,6 @@ const BLUE = "#5dade2";
 const RED = "#ff6b6b";
 
 export default function App() {
-  const [tab, setTab] = useState("Problem");
 
   return (
     <div className="min-h-full bg-background text-foreground">
@@ -25,7 +24,7 @@ export default function App() {
       </div>
 
       <div className="px-4 pt-3">
-        <Tabs selectedKey={tab} onSelectionChange={key => setTab(String(key))} variant="underlined" color="primary" size="sm">
+        <ArtifactTabs>
           <Tab key="Problem" title="Problem">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card>
@@ -274,7 +273,7 @@ public class NonCyclicalNumber {
               </Card>
             </div>
           </Tab>
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );

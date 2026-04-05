@@ -1,7 +1,7 @@
 export const difficulty = 'Medium'
 import { useState, useEffect } from "react";
 import CodeBlock from '../../../src/CodeBlock';
-import { Tabs, Tab } from "@heroui/react";
+import { ArtifactTabs, Tab } from '../../../src/ArtifactTabs';
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Chip } from "@heroui/react";
@@ -125,7 +125,6 @@ function CharStrip({ s1, s2, step }) {
 }
 
 export default function App() {
-  const [tab, setTab] = useState("Problem");
   const [s1, setS1] = useState("ab");
   const [s2, setS2] = useState("eidbaooo");
   const [steps, setSteps] = useState([]);
@@ -172,7 +171,7 @@ export default function App() {
       </div>
 
       <div className="px-4 pt-3">
-        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(String(key))} variant="underlined" color="primary" size="sm">
+        <ArtifactTabs>
           <Tab key="Problem" title="Problem">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
               <Card><CardBody>
@@ -441,7 +440,7 @@ class Solution {
               </CardBody></Card>
             </div>
           </Tab>
-        </Tabs>
+        </ArtifactTabs>
       </div>
     </div>
   );
