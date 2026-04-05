@@ -1,11 +1,12 @@
 import { useState, Suspense, useEffect, useRef } from 'react'
 import { Spinner, ScrollShadow, Chip, Input } from '@heroui/react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import SystemDesign from './SystemDesign'
 import RoadmapGraph from './RoadmapGraph'
 import { ArtifactRevisionProvider } from './ArtifactRevisedButton'
 import { AuthButton } from './AuthButton'
 import { useRevisions } from './useRevisions'
+import RevisionStats from './RevisionStats'
 
 // Auto-discover algorithm artifact JSX files
 const artifactModules = import.meta.glob('../solutions/**/artifact/*.jsx')
@@ -146,6 +147,7 @@ export default function App() {
   const [search, setSearch] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { revisions, getRevisionCount, canLogRevisionToday, logRevision, resetRevisions } = useRevisions()
+  const [showRevStats, setShowRevStats] = useState(false)
   const [headerHidden, setHeaderHidden] = useState(false)
   const lastScrollY = useRef(0)
   const headerToggleScrollY = useRef(0)
@@ -311,7 +313,7 @@ export default function App() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <ModeSwitch mode={mode} onChange={switchMode} />
-                <AuthButton isDark={isDark} onDarkChange={setIsDark} />
+                <AuthButton isDark={isDark} onDarkChange={setIsDark} onRevStats={() => setShowRevStats(true)} />
               </div>
             </div>
           </header>
@@ -481,7 +483,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <ModeSwitch mode={mode} onChange={switchMode} />
-              <AuthButton isDark={isDark} onDarkChange={setIsDark} />
+              <AuthButton isDark={isDark} onDarkChange={setIsDark} onRevStats={() => setShowRevStats(true)} />
             </div>
             </div>
           </header>
@@ -644,6 +646,16 @@ export default function App() {
           </div>
         </>
       )}
+
+      <AnimatePresence>
+        {showRevStats && (
+          <RevisionStats
+            revisions={revisions}
+            artifactList={artifactList}
+            onClose={() => setShowRevStats(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

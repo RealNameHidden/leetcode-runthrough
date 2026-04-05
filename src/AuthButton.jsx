@@ -29,7 +29,17 @@ function MoonIcon() {
   )
 }
 
-export function AuthButton({ isDark, onDarkChange }) {
+function ChartIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6"  y1="20" x2="6"  y2="14"/>
+    </svg>
+  )
+}
+
+export function AuthButton({ isDark, onDarkChange, onRevStats }) {
   const { user, signIn, signOut } = useAuth()
 
   const trigger = user?.photoURL ? (
@@ -84,6 +94,16 @@ export function AuthButton({ isDark, onDarkChange }) {
               </Button>
             </div>
           )}
+
+          {/* Revision Stats menu item */}
+          <button
+            type="button"
+            onClick={() => onRevStats?.()}
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-default-600 hover:bg-content2 hover:text-foreground transition-colors text-left border-b border-divider"
+          >
+            <ChartIcon />
+            Revision Stats
+          </button>
 
           {/* Dark mode toggle */}
           <div className="flex items-center justify-between px-3 py-2.5">
