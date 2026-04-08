@@ -202,7 +202,7 @@ export default function App() {
 
       <ArtifactTabs className="flex-1 px-6 py-4">
         {/* ── TAB 0: PROBLEM ─────────────────────────────────────── */}
-        <Tab key="problem" title="Problem">
+        <Tab key="Problem" title="Problem">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <Card><CardBody>
               <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
@@ -258,7 +258,7 @@ No valid ordering exists → return empty array.`}</CodeBlock>
         </Tab>
 
         {/* ── TAB 1: INTUITION ───────────────────────────────────── */}
-        <Tab key="intuition" title="Intuition">
+        <Tab key="Intuition" title="Intuition">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <Card><CardBody>
               <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-4">The Core Idea</p>
@@ -351,7 +351,7 @@ function hasCycle(course):
         </Tab>
 
         {/* ── TAB 2: VISUALIZER ──────────────────────────────────── */}
-        <Tab key="visualizer" title="Visualizer">
+        <Tab key="Visualizer" title="Visualizer">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             {sim && (() => {
               const step = sim.steps[si];
@@ -471,7 +471,7 @@ function hasCycle(course):
         </Tab>
 
         {/* ── TAB 3: CODE ────────────────────────────────────────── */}
-        <Tab key="code" title="Code">
+        <Tab key="Code" title="Code">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <ArtifactRevisedButton />
 

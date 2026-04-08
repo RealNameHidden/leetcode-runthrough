@@ -9,7 +9,7 @@ export { Tab }
  * - Manages selected state internally — no need for useState in each artifact
  * - Accepts className to pass through to Tabs (default: "flex-1 px-6 py-4")
  */
-export function ArtifactTabs({ children, className, defaultKey = 'problem', ...props }) {
+export function ArtifactTabs({ children, className, defaultKey = 'Problem', ...props }) {
   const [selected, setSelected] = useState(defaultKey)
   return (
     <Tabs

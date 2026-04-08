@@ -199,7 +199,7 @@ export default function App() {
         {/* ──────────────────────────────────────────────────────────── */}
         {/* TAB 0: PROBLEM */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <Tab key="problem" title="Problem">
+        <Tab key="Problem" title="Problem">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <Card>
               <CardBody>
@@ -254,7 +254,7 @@ Explanation:
         {/* ──────────────────────────────────────────────────────────── */}
         {/* TAB 1: INTUITION */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <Tab key="intuition" title="Intuition">
+        <Tab key="Intuition" title="Intuition">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <Card>
               <CardBody>
@@ -345,7 +345,7 @@ return nums[left];`}</CodeBlock>
         {/* ──────────────────────────────────────────────────────────── */}
         {/* TAB 2: VISUALIZER */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <Tab key="visualizer" title="Visualizer">
+        <Tab key="Visualizer" title="Visualizer">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <Card>
               <CardBody>
@@ -428,7 +428,7 @@ return nums[left];`}</CodeBlock>
         {/* ──────────────────────────────────────────────────────────── */}
         {/* TAB 3: CODE */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <Tab key="code" title="Code">
+        <Tab key="Code" title="Code">
           <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
             <ArtifactRevisedButton />
 
