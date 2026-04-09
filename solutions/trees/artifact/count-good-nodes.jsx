@@ -245,6 +245,50 @@ export default function App() {
           size="sm"
         >
 
+          {/* ── PROBLEM ──────────────────────────────────── */}
+          <Tab key="Problem" title="Problem">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+                <p className="text-sm text-default-600 leading-relaxed mb-4">
+                  Given a binary tree root, a node X in the tree is named <span style={{ color: TEAL }} className="font-semibold">good</span> if in the path from root to X there are no nodes with a value greater than X. Return the number of good nodes in the binary tree.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    { sig: "int goodNodes(TreeNode root)", desc: "Count nodes where node.val >= every ancestor's value on the path from root." },
+                  ].map(({ sig, desc }) => (
+                    <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+                      <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
+                      <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — Counting good nodes</p>
+                <CodeBlock language="text">{`Input: root = [3,1,4,3,null,1,5]
+Expected output: 4
+
+Tree:
+        3
+       / \\
+      1   4
+     /   / \\
+    3   1   5
+
+Path analysis:
+  Node 3 (root): max so far = -∞ → 3 >= -∞  ✓ GOOD
+  Node 1:        max so far = 3  → 1 >= 3?   ✗ not good
+  Node 3 (leaf): max so far = 3  → 3 >= 3    ✓ GOOD
+  Node 4:        max so far = 3  → 4 >= 3    ✓ GOOD
+  Node 1 (leaf): max so far = 4  → 1 >= 4?   ✗ not good
+  Node 5:        max so far = 4  → 5 >= 4    ✓ GOOD
+
+Answer: 4 good nodes`}</CodeBlock>
+              </CardBody></Card>
+            </div>
+          </Tab>
+
           {/* ── INTUITION ─────────────────────────────────── */}
           <Tab key="Intuition" title="Intuition">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">

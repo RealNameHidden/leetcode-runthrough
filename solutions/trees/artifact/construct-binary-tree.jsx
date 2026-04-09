@@ -171,6 +171,47 @@ export default function App() {
           size="sm"
         >
 
+          {/* ── PROBLEM ────────────────────────────────────────────── */}
+          <Tab key="Problem" title="Problem">
+            <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Problem Statement</p>
+                <p className="text-sm text-default-600 leading-relaxed mb-4">
+                  Given two integer arrays <code className="text-foreground">preorder</code> and <code className="text-foreground">inorder</code> where <code className="text-foreground">preorder</code> is the preorder traversal of a binary tree and <code className="text-foreground">inorder</code> is the inorder traversal of the same tree, construct and return the binary tree.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    { sig: "TreeNode buildTree(int[] preorder, int[] inorder)", desc: "Reconstruct the binary tree from its preorder and inorder traversals. Each value is unique." },
+                  ].map(({ sig, desc }) => (
+                    <div key={sig} className="flex gap-3 items-start rounded-lg px-3 py-2.5 flex-wrap" style={{ background: "var(--viz-surface)", border: "1px solid var(--viz-border)" }}>
+                      <code className="text-xs font-mono shrink-0 min-w-0 break-all" style={{ color: TEAL }}>{sig}</code>
+                      <span className="text-xs text-default-500 leading-relaxed min-w-0 flex-1">{desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardBody></Card>
+              <Card><CardBody>
+                <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Example — Building the tree</p>
+                <CodeBlock language="text">{`Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+Expected output:
+        3
+       / \\
+      9   20
+         /  \\
+        15   7
+
+Step-by-step:
+  1. preorder[0] = 3 → root. Find 3 in inorder at index 1.
+     Left subtree inorder: [9]    Right subtree inorder: [15,20,7]
+  2. Next preorder = 9 → left child of 3. inorder [9] has no children.
+  3. Next preorder = 20 → right child of 3. Find 20 in inorder at index 3.
+     Left subtree inorder: [15]   Right subtree inorder: [7]
+  4. Next preorder = 15 → left child of 20.
+  5. Next preorder = 7  → right child of 20.`}</CodeBlock>
+              </CardBody></Card>
+            </div>
+          </Tab>
+
           {/* ── INTUITION ───────────────────────────────────────────── */}
           <Tab key="Intuition" title="Intuition">
             <div className="flex flex-col gap-4 max-w-3xl mx-auto py-4 pb-10">

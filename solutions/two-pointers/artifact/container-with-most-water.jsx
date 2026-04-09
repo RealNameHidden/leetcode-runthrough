@@ -11,10 +11,31 @@ import { ArtifactRevisedButton } from '../../../src/ArtifactRevisedButton'
 
 const ACCENT="#38bdf8",TEAL="#2dd4bf",WATER="#1e6fa8",WATERHI="#38bdf850",GREEN="#4ade80",POINTER="#facc15";
 
+function CodeLine({ children, highlight, annotation, annotationColor }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12,
+      padding: "6px 16px",
+      background: highlight ? "rgba(78,204,163,0.08)" : "transparent",
+      borderLeft: `3px solid ${highlight ? TEAL : "transparent"}`,
+      transition: "background 0.2s",
+    }}>
+      <div style={{ fontSize: 12, fontFamily: "monospace", lineHeight: 1.5, flexShrink: 0 }}>
+        {children}
+      </div>
+      {annotation && (
+        <div style={{ fontSize: 11, color: annotationColor, whiteSpace: "nowrap", fontFamily: "monospace", opacity: 0.85 }}>
+          // {annotation}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function simulate(heights){
   const steps=[];
   let l=0,r=heights.length-1,best=0,bestL=0,bestR=0;
-  steps.push({l,r,area:0,best,bestL,bestR,desc:"Initialize left=0, right=n-1.",moved:null});
+  steps.push({l,r,area:0,best,bestL,bestR,desc:"Initialize left=0, right=n-1.",moved:null,line:0,hL:heights[l],hR:heights[r]});
   while(l<r){
     const h=Math.min(heights[l],heights[r]);
     const area=h*(r-l);
@@ -24,10 +45,11 @@ function simulate(heights){
     const desc=area>prev
       ?`area=min(${heights[l]},${heights[r]})×${r-l}=${area} ✦ new best!`
       :`area=min(${heights[l]},${heights[r]})×${r-l}=${area}`;
-    steps.push({l,r,area,best,bestL,bestR,desc,moved});
+    const line=moved==="left"?3:4;
+    steps.push({l,r,area,best,bestL,bestR,desc,moved,line,hL:heights[l],hR:heights[r]});
     if(heights[l]<heights[r])l++;else r--;
   }
-  steps.push({l,r,area:null,best,bestL,bestR,desc:`Pointers met → answer=${best}`,moved:null,done:true});
+  steps.push({l,r,area:null,best,bestL,bestR,desc:`Pointers met → answer=${best}`,moved:null,done:true,line:5,hL:heights[Math.min(l,heights.length-1)],hR:heights[Math.min(r,heights.length-1)]});
   return steps;
 }
 
@@ -176,6 +198,26 @@ export default function App(){
                   <div className="rounded-lg px-4 py-3 mb-4" style={{background:isBest?`${GREEN}12`:`${ACCENT}0d`,border:`1px solid ${isBest?GREEN:ACCENT}44`}}>
                     <p className="text-[10px] text-default-400 mb-0.5">STEP {si+1}/{steps.length}</p>
                     <p className="text-sm text-foreground">{step.desc}</p>
+                  </div>
+                  <div className="rounded-xl overflow-hidden mb-4" style={{ background: "var(--code-bg)", border: "1px solid var(--code-border)" }}>
+                    <CodeLine highlight={step.line===0} annotation={`l = ${step.l}, r = ${step.r}`} annotationColor={TEAL}>
+                      <span style={{ color: "var(--code-muted)" }}>int l = 0, r = height.length - 1</span>
+                    </CodeLine>
+                    <CodeLine highlight={step.line===1||step.line===2} annotation={`area = min(${step.hL},${step.hR})×${step.r-step.l} = ${step.area??0}`} annotationColor={ACCENT}>
+                      <span style={{ color: "var(--code-muted)" }}>int area = min(h[l],h[r]) * (r-l)</span>
+                    </CodeLine>
+                    <CodeLine highlight={isBest} annotation={`best = ${step.best}`} annotationColor={GREEN}>
+                      <span style={{ color: "var(--code-muted)" }}>best = max(best, area)</span>
+                    </CodeLine>
+                    <CodeLine highlight={step.line===3} annotation={step.moved==="left"?`h[${step.l}]=${step.hL} < h[${step.r}]=${step.hR} → l++`:"—"} annotationColor={POINTER}>
+                      <span style={{ color: "var(--code-muted)" }}>if (h[l] {"<"} h[r]) l++</span>
+                    </CodeLine>
+                    <CodeLine highlight={step.line===4} annotation={step.moved==="right"?`h[${step.r}]=${step.hR} ≤ h[${step.l}]=${step.hL} → r--`:"—"} annotationColor={POINTER}>
+                      <span style={{ color: "var(--code-muted)" }}>else r--</span>
+                    </CodeLine>
+                    <CodeLine highlight={step.done} annotation={step.done?`return ${step.best}`:""} annotationColor={GREEN}>
+                      <span style={{ color: "var(--code-muted)" }}>return best</span>
+                    </CodeLine>
                   </div>
                   <div className="rounded-xl p-4 mb-4" style={{background:"var(--viz-surface)",border:"1px solid var(--viz-border)"}}>
                     <WaterViz heights={heights} l={step.l} r={step.r} best={step.best} bestL={step.bestL} bestR={step.bestR} done={step.done}/>

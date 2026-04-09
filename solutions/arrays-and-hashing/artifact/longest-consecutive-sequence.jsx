@@ -550,32 +550,28 @@ return maxLen;`}</CodeBlock>
               <Card><CardBody>
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Full Java Solution</p>
                 <CodeBlock>{`import java.util.HashSet;
+import java.util.Set;
 
 class Solution {
     public int longestConsecutive(int[] nums) {
-        HashSet<Integer> set = new HashSet<>();
+        Set<Integer> numSet = new HashSet<>();
         for (int num : nums) {
-            set.add(num);
+            numSet.add(num);
         }
 
-        int maxLen = 0;
+        int longest = 0;
 
-        for (int num : set) {
-            // Only start counting if num is the beginning of a sequence
-            if (!set.contains(num - 1)) {
-                int cur = num;
-                int len = 1;
-
-                while (set.contains(cur + 1)) {
-                    cur++;
-                    len++;
+        for (int num : numSet) {
+            if (!numSet.contains(num - 1)) {        // is this a sequence start?
+                int length = 1;
+                while (numSet.contains(num + length)) {  // keep walking forward
+                    length++;
                 }
-
-                maxLen = Math.max(maxLen, len);
+                longest = Math.max(longest, length);
             }
         }
 
-        return maxLen;
+        return longest;
     }
 }`}</CodeBlock>
               </CardBody></Card>
@@ -584,11 +580,11 @@ class Solution {
                 <p className="text-xs font-bold text-default-500 uppercase tracking-wider mb-3">Line-by-Line Breakdown</p>
                 <div className="flex flex-col divide-y divide-divider">
                   {[
-                    { line: "set.add(num)", exp: "Load all numbers into a HashSet. Duplicates are silently ignored. O(n) total." },
-                    { line: "if (!set.contains(num - 1))", exp: "Sequence start check: num is a start only if num-1 is NOT in the set. Skip otherwise to avoid redundant work." },
-                    { line: "int cur = num; int len = 1", exp: "Initialize the chain starting at num with length 1 (the start itself)." },
-                    { line: "while (set.contains(cur + 1))", exp: "Extend the chain as long as the next consecutive number exists in O(1) per lookup." },
-                    { line: "maxLen = Math.max(maxLen, len)", exp: "Update the global maximum after fully counting each consecutive sequence." },
+                    { line: "Set<Integer> numSet = new HashSet<>(Arrays.asList(nums))", exp: "Convert array to HashSet in one line. Duplicates are automatically removed. O(n)." },
+                    { line: "if (!numSet.contains(num - 1))", exp: "Sequence start check: num is a start only if num-1 is NOT in the set. Skip otherwise to avoid redundant work." },
+                    { line: "int length = 1", exp: "Initialize counter for the current sequence length starting at 1." },
+                    { line: "while (numSet.contains(num + length))", exp: "Extend the chain by directly checking num + length. Each lookup is O(1). Stop when the next number doesn't exist." },
+                    { line: "longest = Math.max(longest, length)", exp: "Update the global maximum after fully counting each consecutive sequence." },
                   ].map(({ line, exp }) => (
                     <div key={line} className="py-3 flex gap-3 items-start">
                       <code className="text-[11px] px-2 py-1 rounded flex-shrink-0 font-mono"
